@@ -212,7 +212,7 @@ const MenuScreen = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray">
+    <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray overflow-hidden"> {/* Added overflow-hidden */}
       {/* Header for Back Button and Line Title */}
       <div className="p-4 flex items-center justify-between lg:justify-start">
         <Button
@@ -224,7 +224,7 @@ const MenuScreen = () => {
           <ChevronLeft className="h-5 w-5" />
           <span className="text-lg font-semibold">Back</span>
         </Button>
-        <h1 className="text-4xl md:text-5xl font-bold text-center text-festival-dark-red flex-1 lg:ml-8">
+        <h1 className="text-5xl md:text-6xl font-bold text-center text-festival-dark-red flex-1 lg:ml-8"> {/* Increased font size */}
           {lineSide} Line
         </h1>
       </div>

@@ -11,8 +11,8 @@ import CheckoutScreen from "./pages/CheckoutScreen";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login"; // Import Login page
 import { FoodProvider } from "@/context/FoodContext";
-import RedirectOnReload from "./components/RedirectOnReload";
-import { SessionContextProvider, useSession } from "@/context/SessionContext"; // Import SessionContextProvider and useSession
+// import RedirectOnReload from "./components/RedirectOnReload"; // Removed
+import { SessionContextProvider, useSession } from "@/context/SessionContext";
 import React from "react";
 
 const queryClient = new QueryClient();
@@ -38,21 +38,19 @@ const App = () => (
       <Toaster />
       <Sonner position="top-center" />
       <BrowserRouter>
-        <SessionContextProvider> {/* Wrap with SessionContextProvider */}
+        <SessionContextProvider>
           <FoodProvider>
-            <RedirectOnReload>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/dietary-restrictions" element={<DietaryRestrictionsScreen />} />
-                <Route path="/menu" element={<MenuScreen />} />
-                <Route path="/login" element={<Login />} /> {/* Add Login route */}
-                {/* Admin Dashboard is now unprotected as requested */}
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/checkout" element={<CheckoutScreen />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </RedirectOnReload>
+            {/* Removed RedirectOnReload component */}
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/dietary-restrictions" element={<DietaryRestrictionsScreen />} />
+              <Route path="/menu" element={<MenuScreen />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/checkout" element={<CheckoutScreen />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </FoodProvider>
         </SessionContextProvider>
       </BrowserRouter>

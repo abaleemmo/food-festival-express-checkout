@@ -32,6 +32,8 @@ const MenuScreen = () => {
 
   const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(null);
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
+  const [isWarningDialogOpen, setIsWarningDialogOpen] = useState(false);
+  const [itemToAddAfterWarning, setItemToAddAfterWarning] = useState<FoodItem | null>(null);
   const [currentMobileItemIndex, setCurrentMobileItemIndex] = useState(0);
 
   const handleBack = () => {
@@ -74,28 +76,47 @@ const MenuScreen = () => {
     }
   };
 
+  const handleAddItem = (item: FoodItem & { isDisabled: boolean }) => {
+    if (item.isDisabled) {
+      setItemToAddAfterWarning(item);
+      setIsWarningDialogOpen(true);
+    } else {
+      addToCart(item);
+      showSuccess(`${item.name} added to cart!`);
+    }
+  };
+
+  const handleAddAnyway = () => {
+    if (itemToAddAfterWarning) {
+      addToCart(itemToAddAfterWarning);
+      showSuccess(`${itemToAddAfterWarning.name} added to cart despite restrictions.`);
+      setItemToAddAfterWarning(null);
+    }
+    setIsWarningDialogOpen(false);
+  };
+
   const renderFoodItemCard = (item: FoodItem & { isDisabled: boolean }) => (
     <Card
       key={item.id}
-      className={`bg-festival-white shadow-lg rounded-lg overflow-hidden flex flex-col ${item.isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`bg-festival-white shadow-lg rounded-lg overflow-hidden flex flex-col ${item.isDisabled ? 'opacity-50' : ''}`}
     >
       {item.image && (
         <img
           src={item.image}
           alt={item.name}
-          className="w-full h-48 object-cover"
+          className="w-full h-32 object-cover" // Made image smaller for mobile
         />
       )}
       <CardHeader className="pb-2">
-        <CardTitle className="text-2xl font-semibold text-festival-deep-orange">
+        <CardTitle className="text-xl font-semibold text-festival-deep-orange"> {/* Smaller title */}
           {item.name}
         </CardTitle>
-        <p className="text-xl font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
+        <p className="text-lg font-bold text-festival-forest-green">${item.price.toFixed(2)}</p> {/* Smaller price */}
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between">
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-1 mb-3"> {/* Smaller gap and margin */}
           {item.dietaryTags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-charcoal-gray">
+            <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-charcoal-gray text-xs"> {/* Smaller badge text */}
               {tag}
             </Badge>
           ))}
@@ -103,19 +124,15 @@ const MenuScreen = () => {
         <div className="flex space-x-2">
           <Button
             onClick={() => handleInfoClick(item)}
-            className="flex-1 bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold"
+            className="flex-1 bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-sm py-2" // Smaller button text/padding
           >
-            <Info className="h-4 w-4 mr-2" /> Info
+            <Info className="h-4 w-4 mr-1" /> Info
           </Button>
           <Button
-            onClick={() => {
-              addToCart(item);
-              showSuccess(`${item.name} added to cart!`);
-            }}
-            className="flex-1 bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold"
-            disabled={item.isDisabled}
+            onClick={() => handleAddItem(item)}
+            className="flex-1 bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold text-sm py-2" // Smaller button text/padding
           >
-            <Plus className="h-4 w-4 mr-2" /> Add
+            <Plus className="h-4 w-4 mr-1" /> Add
           </Button>
         </div>
       </CardContent>
@@ -240,28 +257,30 @@ const MenuScreen = () => {
         ) : (
           <>
             {isMobile ? (
-              <div className="flex flex-col items-center">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleMobileNav('up')}
-                  disabled={currentMobileItemIndex === 0}
-                  className="mb-4 text-festival-forest-green hover:bg-festival-cream"
-                >
-                  <ChevronUp className="h-8 w-8" />
-                </Button>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-md"> {/* Display 2 items per row on small screens, 1 on extra small */}
+              <div className="flex items-center justify-center w-full"> {/* Container for arrows and items */}
+                <div className="flex flex-col space-y-6 mr-4"> {/* Arrows container */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleMobileNav('up')}
+                    disabled={currentMobileItemIndex === 0}
+                    className="text-festival-forest-green hover:bg-festival-cream h-12 w-12" // Larger arrows
+                  >
+                    <ChevronUp className="h-8 w-8" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleMobileNav('down')}
+                    disabled={currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE >= displayFoodItems.length}
+                    className="text-festival-forest-green hover:bg-festival-cream h-12 w-12" // Larger arrows
+                  >
+                    <ChevronDown className="h-8 w-8" />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 max-w-md"> {/* Item grid */}
                   {displayFoodItems.slice(currentMobileItemIndex, currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE).map((item) => renderFoodItemCard(item))}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleMobileNav('down')}
-                  disabled={currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE >= displayFoodItems.length}
-                  className="mt-4 text-festival-forest-green hover:bg-festival-cream"
-                >
-                  <ChevronDown className="h-8 w-8" />
-                </Button>
               </div>
             ) : (
               <ScrollArea className="h-[calc(100vh-200px)] pr-4">
@@ -330,6 +349,30 @@ const MenuScreen = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dietary Restriction Warning Dialog */}
+      <Dialog open={isWarningDialogOpen} onOpenChange={setIsWarningDialogOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-festival-cream text-festival-charcoal-gray">
+          <DialogHeader>
+            <DialogTitle className="text-festival-dark-red">Dietary Restriction Warning</DialogTitle>
+            <DialogDescription className="text-festival-charcoal-gray">
+              This item does not meet your selected dietary restrictions (
+              {itemToAddAfterWarning?.dietaryTags.join(', ') || 'None specified for item'}). Are you sure you want to add it to your cart?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsWarningDialogOpen(false)} className="border-festival-dark-red text-festival-dark-red hover:bg-festival-dark-red/10">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddAnyway}
+              className="bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white"
+            >
+              Add Anyway
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

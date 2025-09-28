@@ -14,6 +14,8 @@ import { ShoppingCart, Plus, Minus, Trash2, ChevronLeft, Info, ChevronUp, Chevro
 import { showSuccess, showError } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+const MOBILE_ITEMS_PER_PAGE = 4;
+
 const MenuScreen = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -66,9 +68,9 @@ const MenuScreen = () => {
 
   const handleMobileNav = (direction: 'up' | 'down') => {
     if (direction === 'up') {
-      setCurrentMobileItemIndex((prev) => Math.max(0, prev - 1));
+      setCurrentMobileItemIndex((prev) => Math.max(0, prev - MOBILE_ITEMS_PER_PAGE));
     } else {
-      setCurrentMobileItemIndex((prev) => Math.min(displayFoodItems.length - 1, prev + 1));
+      setCurrentMobileItemIndex((prev) => Math.min(displayFoodItems.length - MOBILE_ITEMS_PER_PAGE, prev + MOBILE_ITEMS_PER_PAGE));
     }
   };
 
@@ -210,7 +212,7 @@ const MenuScreen = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row p-4 bg-festival-cream text-festival-charcoal-gray">
       {/* Back Button */}
-      <div className="absolute top-4 left-4 z-10">
+      <div className={`z-10 ${isMobile ? 'fixed bottom-4 left-4' : 'absolute top-4 left-4'}`}>
         <Button
           variant="default"
           size="lg"
@@ -225,14 +227,14 @@ const MenuScreen = () => {
       {/* Main Menu Content */}
       <div className="flex-1 p-4 lg:pl-28 lg:pr-8"> {/* Adjusted padding for back button */}
         <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center text-festival-dark-red">
-          Our Menu ({lineSide} Line)
+          {lineSide} Line
         </h1>
         <p className="text-lg md:text-xl mb-6 text-center">
           Selected Restrictions: {dietaryRestrictions.length > 0 ? dietaryRestrictions.join(', ') : 'None'}
         </p>
 
         {displayFoodItems.length === 0 ? (
-          <p className="text-center text-xl text-festival-charcoal-gray md:col-span-2 lg:col-span-4"> {/* Adjusted col-span */}
+          <p className="text-center text-xl text-festival-charcoal-gray md:col-span-2 lg:col-span-4">
             No food items available for your selection.
           </p>
         ) : (
@@ -248,14 +250,14 @@ const MenuScreen = () => {
                 >
                   <ChevronUp className="h-8 w-8" />
                 </Button>
-                <div className="w-full max-w-md">
-                  {renderFoodItemCard(displayFoodItems[currentMobileItemIndex])}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-md"> {/* Display 2 items per row on small screens, 1 on extra small */}
+                  {displayFoodItems.slice(currentMobileItemIndex, currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE).map((item) => renderFoodItemCard(item))}
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => handleMobileNav('down')}
-                  disabled={currentMobileItemIndex === displayFoodItems.length - 1}
+                  disabled={currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE >= displayFoodItems.length}
                   className="mt-4 text-festival-forest-green hover:bg-festival-cream"
                 >
                   <ChevronDown className="h-8 w-8" />
@@ -263,7 +265,7 @@ const MenuScreen = () => {
               </div>
             ) : (
               <ScrollArea className="h-[calc(100vh-200px)] pr-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"> {/* Changed to lg:grid-cols-4 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {displayFoodItems.map((item) => renderFoodItemCard(item))}
                 </div>
               </ScrollArea>

@@ -91,18 +91,12 @@ const MenuScreen = () => {
         <p className="text-xl font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between">
-        <p className="text-festival-charcoal-gray text-sm mb-3">{item.description}</p>
         <div className="flex flex-wrap gap-2 mb-4">
           {item.dietaryTags.map((tag) => (
             <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-charcoal-gray">
               {tag}
             </Badge>
           ))}
-          {item.origin && (
-            <Badge variant="outline" className="border-festival-forest-green text-festival-forest-green">
-              Origin: {item.origin}
-            </Badge>
-          )}
         </div>
         <div className="flex space-x-2">
           <Button
@@ -229,7 +223,7 @@ const MenuScreen = () => {
       </div>
 
       {/* Main Menu Content */}
-      <div className="flex-1 p-4 lg:pr-8">
+      <div className="flex-1 p-4 lg:pl-28 lg:pr-8"> {/* Adjusted padding for back button */}
         <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center text-festival-dark-red">
           Our Menu ({lineSide} Line)
         </h1>
@@ -238,7 +232,7 @@ const MenuScreen = () => {
         </p>
 
         {displayFoodItems.length === 0 ? (
-          <p className="text-center text-xl text-festival-charcoal-gray md:col-span-2 lg:col-span-3">
+          <p className="text-center text-xl text-festival-charcoal-gray md:col-span-2 lg:col-span-4"> {/* Adjusted col-span */}
             No food items available for your selection.
           </p>
         ) : (
@@ -269,7 +263,7 @@ const MenuScreen = () => {
               </div>
             ) : (
               <ScrollArea className="h-[calc(100vh-200px)] pr-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"> {/* Changed to lg:grid-cols-4 */}
                   {displayFoodItems.map((item) => renderFoodItemCard(item))}
                 </div>
               </ScrollArea>

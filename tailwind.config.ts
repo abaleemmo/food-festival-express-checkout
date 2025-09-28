@@ -52,6 +52,15 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        festival: {
+          "deep-orange": "#E46C25",
+          "golden-yellow": "#F1B534",
+          "forest-green": "#356241",
+          "dark-red": "#8B2E2E",
+          "cream": "#F9F5E7",
+          "charcoal-gray": "#333333",
+          "white": "#FFFFFF",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

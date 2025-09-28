@@ -104,19 +104,19 @@ const MenuScreen = () => {
         <img
           src={item.image}
           alt={item.name}
-          className="w-full h-32 object-cover" // Slightly increased image height
+          className="w-full h-20 object-cover" // Reduced image height
         />
       )}
-      <CardHeader className="pb-2 px-3">
-        <CardTitle className="text-base font-semibold text-festival-deep-orange truncate">
+      <CardHeader className="pb-1 pt-2 px-2"> {/* Reduced padding */}
+        <CardTitle className="text-sm font-semibold text-festival-deep-orange truncate"> {/* Smaller title */}
           {item.name}
         </CardTitle>
-        <p className="text-sm font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
+        <p className="text-xs font-bold text-festival-forest-green">${item.price.toFixed(2)}</p> {/* Smaller price */}
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-between p-3 pt-0">
+      <CardContent className="flex-1 flex flex-col justify-between p-2 pt-0"> {/* Reduced padding */}
         <div className="flex flex-wrap gap-1 mb-2">
           {item.dietaryTags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-charcoal-gray text-xs px-2 py-1"> {/* Adjusted badge padding */}
+            <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-charcoal-gray text-xs px-1 py-0.5">
               {tag}
             </Badge>
           ))}
@@ -124,15 +124,15 @@ const MenuScreen = () => {
         <div className="flex space-x-1">
           <Button
             onClick={() => handleInfoClick(item)}
-            className="flex-1 bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-sm py-2 h-auto" // Adjusted button padding
+            className="flex-1 bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-xs py-1 h-auto" // Smaller button text/padding
           >
-            <Info className="h-4 w-4 mr-1" /> Info
+            <Info className="h-3 w-3 mr-1" /> Info
           </Button>
           <Button
             onClick={() => handleAddItem(item)}
-            className="flex-1 bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold text-sm py-2 h-auto" // Adjusted button padding
+            className="flex-1 bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold text-xs py-1 h-auto" // Smaller button text/padding
           >
-            <Plus className="h-4 w-4 mr-1" /> Add
+            <Plus className="h-3 w-3 mr-1" /> Add
           </Button>
         </div>
       </CardContent>
@@ -253,41 +253,33 @@ const MenuScreen = () => {
             No food items available for your selection.
           </p>
         ) : (
-          <>
-            {isMobile ? (
-              <div className="flex w-full justify-center"> {/* Main container for mobile menu items and arrows */}
-                <div className="flex flex-col space-y-6 mr-4"> {/* Arrows container */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleMobileNav('up')}
-                    disabled={currentMobileItemIndex === 0}
-                    className="text-festival-forest-green hover:bg-festival-cream h-14 w-14 bg-festival-golden-yellow/20 rounded-md" // Larger arrows with background
-                  >
-                    <ChevronUp className="h-10 w-10" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleMobileNav('down')}
-                    disabled={currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE >= displayFoodItems.length}
-                    className="text-festival-forest-green hover:bg-festival-cream h-14 w-14 bg-festival-golden-yellow/20 rounded-md" // Larger arrows with background
-                  >
-                    <ChevronDown className="h-10 w-10" />
-                  </Button>
-                </div>
-                <div className="grid grid-cols-2 gap-4 flex-1"> {/* Item grid, now without max-w-md */}
-                  {displayFoodItems.slice(currentMobileItemIndex, currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE).map((item) => renderFoodItemCard(item))}
-                </div>
+          <div className="flex w-full h-full"> {/* Ensure this container takes full height */}
+            {isMobile && (
+              <div className="flex flex-col space-y-6 mr-4 justify-center"> {/* Arrows container, centered vertically */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleMobileNav('up')}
+                  disabled={currentMobileItemIndex === 0}
+                  className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md" // Solid background for contrast
+                >
+                  <ChevronUp className="h-10 w-10" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleMobileNav('down')}
+                  disabled={currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE >= displayFoodItems.length}
+                  className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md" // Solid background for contrast
+                >
+                  <ChevronDown className="h-10 w-10" />
+                </Button>
               </div>
-            ) : (
-              <ScrollArea className="h-[calc(100vh-200px)] pr-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {displayFoodItems.map((item) => renderFoodItemCard(item))}
-                </div>
-              </ScrollArea>
             )}
-          </>
+            <div className="grid grid-cols-2 gap-4 flex-1"> {/* Item grid, now without max-w-md */}
+              {displayFoodItems.slice(currentMobileItemIndex, currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE).map((item) => renderFoodItemCard(item))}
+            </div>
+          </div>
         )}
       </div>
 

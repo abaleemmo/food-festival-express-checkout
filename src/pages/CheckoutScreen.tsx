@@ -73,7 +73,6 @@ const CheckoutScreen = () => {
       <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6">
         <CardHeader className="text-center">
           <CardTitle className="text-4xl font-bold mb-4 text-festival-dark-red">Thank You!</CardTitle>
-          <p className="text-xl text-festival-charcoal-gray">Your order has been placed successfully.</p>
         </CardHeader>
         <CardContent className="mt-6">
           <h2 className="text-2xl font-semibold mb-4 text-festival-deep-orange">Order Summary</h2>
@@ -90,7 +89,6 @@ const CheckoutScreen = () => {
             <span>Total:</span>
             <span>${cartTotal.toFixed(2)}</span>
           </div>
-          <p className="text-sm text-gray-500 text-center mb-6">No tax added (nonprofit organization).</p>
 
           <div className="flex flex-col space-y-4">
             <Button

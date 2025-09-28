@@ -22,15 +22,15 @@ const DietaryRestrictionsScreen = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-festival-cream text-festival-charcoal-gray">
-      <div className="absolute top-4 left-4 z-10"> {/* Added z-10 to ensure it's above other content */}
+      <div className="absolute top-4 left-4 z-10">
         <Button
-          variant="default" // Changed to default variant for a solid background
-          size="lg" // Increased size for better touch target
+          variant="default"
+          size="lg"
           onClick={handleBack}
-          className="bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white px-6 py-3 rounded-lg shadow-md flex items-center space-x-2" // Custom styling for prominence
+          className="bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white px-6 py-3 rounded-lg shadow-md flex items-center space-x-2"
         >
           <ChevronLeft className="h-5 w-5" />
-          <span className="text-lg font-semibold">Back</span> {/* Added "Back" text */}
+          <span className="text-lg font-semibold">Back</span>
         </Button>
       </div>
       <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center text-festival-dark-red">

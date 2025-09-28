@@ -12,7 +12,7 @@ import { ShoppingCart, Plus, Minus, ChevronLeft, Info, ChevronUp, ChevronDown, T
 import { showSuccess, showError } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-const ITEMS_PER_PAGE = 4; // Always display 4 items in a 2x2 grid
+const ITEMS_PER_PAGE = 4; // Still display 4 items at a time, but in a column
 
 const MenuScreen = () => {
   const navigate = useNavigate();
@@ -117,46 +117,49 @@ const MenuScreen = () => {
     return (
       <Card
         key={item.id}
-        className={`flex flex-col bg-festival-white shadow-lg rounded-lg overflow-hidden ${item.isDisabled ? 'opacity-50' : ''}
-          w-[calc(50%-0.5rem)] // Approx 48% width with 1rem gap
-          md:w-[calc(50%-0.75rem)] // Adjust for larger screens if needed
-        `}
+        className={`flex flex-col bg-festival-white shadow-lg rounded-lg overflow-hidden w-full ${item.isDisabled ? 'opacity-50' : ''}`}
       >
         {item.image && (
           <img
             src={item.image}
             alt={item.name}
-            className="w-full h-24 object-cover" // Adjusted image height
+            className="w-full h-32 object-cover" // Slightly increased image height for single column
           />
         )}
         <CardHeader className="flex-grow-0 pb-2 pt-3 px-3">
-          <CardTitle className="text-base font-bold text-festival-deep-orange">
+          <CardTitle className="text-lg font-bold text-festival-deep-orange">
             {item.name}
           </CardTitle>
-          <p className="text-sm font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
+          <p className="text-base font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
         </CardHeader>
         <CardContent className="flex-grow flex flex-col justify-between p-3 space-y-2">
+          <p className="text-sm text-festival-charcoal-gray mb-2">{item.description}</p> {/* Added description here */}
           <div className="flex flex-wrap gap-1">
             {item.dietaryTags.map((tag) => (
               <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-white text-xs px-2 py-1">
                 {tag}
               </Badge>
             ))}
+            {item.origin && (
+              <Badge variant="outline" className="border-festival-forest-green text-festival-forest-green text-xs px-2 py-1">
+                Origin: {item.origin}
+              </Badge>
+            )}
           </div>
-          <div className="flex items-center justify-between mt-auto">
+          <div className="flex items-center justify-between mt-auto pt-2">
             <Button
               onClick={() => handleInfoClick(item)}
-              className="bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-xs py-1.5 h-auto rounded-full px-3"
+              className="bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-sm py-1.5 h-auto rounded-full px-3"
             >
-              <Info className="h-3 w-3 mr-1" /> Info
+              <Info className="h-4 w-4 mr-1" /> Info
             </Button>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => updateCartQuantity(item.id, quantity - 1)}
                 disabled={quantity === 0}
-                className="h-7 w-7 border-festival-forest-green text-festival-forest-green hover:bg-festival-cream rounded-full"
+                className="h-8 w-8 border-festival-forest-green text-festival-forest-green hover:bg-festival-cream rounded-full"
               >
                 <Minus className="h-4 w-4" />
               </Button>
@@ -167,7 +170,7 @@ const MenuScreen = () => {
                 variant="outline"
                 size="icon"
                 onClick={() => handleAddItem(item)} // Use handleAddItem to respect restrictions
-                className="h-7 w-7 border-festival-forest-green text-festival-forest-green hover:bg-festival-cream rounded-full"
+                className="h-8 w-8 border-festival-forest-green text-festival-forest-green hover:bg-festival-cream rounded-full"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -279,7 +282,7 @@ const MenuScreen = () => {
         </h1>
 
         {displayFoodItems.length === 0 ? (
-          <p className="text-center text-xl text-festival-charcoal-gray md:col-span-2 lg:col-span-4">
+          <p className="text-center text-xl text-festival-charcoal-gray">
             No food items available for your selection.
           </p>
         ) : (
@@ -306,10 +309,10 @@ const MenuScreen = () => {
               </Button>
             </div>
 
-            {/* Food Item Grid */}
+            {/* Food Item Column */}
             <div
               key={currentPageIndex} // Key change triggers re-render and animation
-              className="grid grid-cols-2 gap-4 flex-1 transition-opacity duration-200 ease-in-out opacity-100"
+              className="flex flex-col gap-4 flex-1 transition-opacity duration-200 ease-in-out opacity-100"
             >
               {currentItems.map((item) => renderFoodItemCard(item))}
             </div>

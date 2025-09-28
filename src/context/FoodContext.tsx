@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { showError } from '@/utils/toast';
 
 export type DietaryTag = "Vegetarian" | "Vegan" | "Gluten-Free";
-export type LineSide = "Left" | "Right"; // Re-added LineSide type
+export type LineSide = "Left" | "Right";
 
 export interface FoodItem {
   id: string;
@@ -12,7 +12,7 @@ export interface FoodItem {
   description: string;
   image: string;
   dietaryTags: DietaryTag[];
-  lineSide: LineSide; // Re-added lineSide to FoodItem
+  lineSide: LineSide;
   created_at: string;
   updated_at: string;
 }
@@ -23,24 +23,25 @@ export interface CartItem extends FoodItem {
 
 interface FoodContextType {
   foodItems: FoodItem[];
-  lineSide: LineSide; // Re-added lineSide to context type
+  lineSide: LineSide;
   dietaryRestrictions: DietaryTag[];
   cart: CartItem[];
-  setLineSide: (side: LineSide) => void; // Re-added setLineSide to context type
+  setLineSide: (side: LineSide) => void;
   toggleDietaryRestriction: (restriction: DietaryTag) => void;
   addToCart: (item: FoodItem) => void;
   updateCartQuantity: (itemId: string, quantity: number) => void;
   removeFromCart: (itemId: string) => void;
   clearCart: () => void;
-  setFoodItems: (items: FoodItem[]) => void; // For admin panel
-  fetchFoodItems: () => Promise<void>; // Expose fetch function for admin
+  setFoodItems: (items: FoodItem[]) => void;
+  fetchFoodItems: () => Promise<void>;
 }
 
 const FoodContext = createContext<FoodContextType | undefined>(undefined);
 
 export const FoodProvider = ({ children }: { children: ReactNode }) => {
+  console.log("FoodProvider rendering"); // Diagnostic log
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
-  const [lineSide, setLineSide] = useState<LineSide>("Left"); // Re-added lineSide state
+  const [lineSide, setLineSide] = useState<LineSide>("Left");
   const [dietaryRestrictions, setDietaryRestrictions] = useState<DietaryTag[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
 
@@ -85,7 +86,7 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
     setCart((prev) =>
       prev.map((cartItem) =>
         cartItem.id === itemId ? { ...cartItem, quantity: quantity } : cartItem
-      ).filter(item => item.quantity > 0) // Remove if quantity drops to 0
+      ).filter(item => item.quantity > 0)
     );
   };
 
@@ -101,10 +102,10 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
     <FoodContext.Provider
       value={{
         foodItems,
-        lineSide, // Re-added lineSide to value
+        lineSide,
         dietaryRestrictions,
         cart,
-        setLineSide, // Re-added setLineSide to value
+        setLineSide,
         toggleDietaryRestriction,
         addToCart,
         updateCartQuantity,
@@ -121,6 +122,7 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
 
 export const useFood = () => {
   const context = useContext(FoodContext);
+  console.log("useFood called, context:", context); // Diagnostic log
   if (context === undefined) {
     throw new Error('useFood must be used within a FoodProvider');
   }

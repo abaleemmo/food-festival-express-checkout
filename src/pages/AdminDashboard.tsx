@@ -141,7 +141,7 @@ const AdminDashboard = () => {
         price: editingItem.price,
         description: editingItem.description,
         image: editingItem.image,
-        dietaryTags: editingItem.dietaryTags,
+        dietary_tags: editingItem.dietaryTags, // Changed to snake_case
         // lineSide is not updated via edit form
         origin: editingItem.origin,
       }).eq('id', editingItem.id);
@@ -159,7 +159,7 @@ const AdminDashboard = () => {
         price: newItem.price,
         description: newItem.description,
         image: newItem.image,
-        dietaryTags: newItem.dietaryTags,
+        dietary_tags: newItem.dietaryTags, // Changed to snake_case
         origin: newItem.origin,
       };
 
@@ -264,7 +264,6 @@ const AdminDashboard = () => {
     mostPopularItems.forEach(item => {
       csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
     });
-    csvContent += `Least Popular Items:\n`;
     leastPopularItems.forEach(item => {
       csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
     });

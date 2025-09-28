@@ -95,8 +95,8 @@ const MenuScreen = () => {
 
   const handleAddItem = (item: FoodItem & { isDisabled: boolean }) => {
     if (item.isDisabled) {
-      setItemToAddAfterWarning(item);
-      setIsWarningDialogOpen(true);
+      setItemToAddAfterWarning(item); // Set the item that triggered the warning
+      setIsWarningDialogOpen(true);   // Open the warning dialog
     } else {
       addToCart(item);
       showSuccess(`${item.name} added to cart!`);

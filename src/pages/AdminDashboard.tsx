@@ -25,7 +25,7 @@ const AdminDashboard = () => {
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [editingItem, setEditingItem] = useState<FoodItem | null>(null);
-  const [newItem, setNewItem] = useState<Omit<FoodItem, 'id'>>({
+  const [newItem, setNewItem] = useState<Omit<FoodItem, 'id' | 'created_at' | 'updated_at'>>({
     name: '',
     price: 0,
     description: '',

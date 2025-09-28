@@ -13,6 +13,8 @@ export interface FoodItem {
   image: string;
   dietaryTags: DietaryTag[];
   lineSide: LineSide;
+  created_at: string; // Added for reordering logic
+  updated_at: string; // Added for completeness
 }
 
 export interface CartItem extends FoodItem {

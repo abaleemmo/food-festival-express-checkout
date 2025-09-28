@@ -118,24 +118,24 @@ const MenuScreen = () => {
       <Card
         key={item.id}
         className={`flex flex-col bg-festival-white shadow-lg rounded-lg overflow-hidden ${item.isDisabled ? 'opacity-50' : ''}
-          w-[calc(50%-0.5rem)] sm:w-[calc(50%-0.75rem)] // Adjust for gap on mobile/small screens
-          aspect-[1/1.3] // Fixed aspect ratio for equal height/width
+          w-[calc(50%-0.5rem)] // Approx 48% width with 1rem gap
+          md:w-[calc(50%-0.75rem)] // Adjust for larger screens if needed
         `}
       >
         {item.image && (
           <img
             src={item.image}
             alt={item.name}
-            className="w-full h-2/5 object-cover" // Image takes 40% height of the card
+            className="w-full h-28 object-cover" // Fixed image height
           />
         )}
-        <CardHeader className="flex-grow-0 pb-1 pt-2 px-3">
-          <CardTitle className="text-base font-bold text-festival-deep-orange truncate">
+        <CardHeader className="flex-grow-0 pb-2 pt-3 px-3"> {/* Adjusted padding */}
+          <CardTitle className="text-md font-bold text-festival-deep-orange"> {/* Increased font size, removed truncate */}
             {item.name}
           </CardTitle>
-          <p className="text-sm font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
+          <p className="text-sm font-bold text-festival-forest-green">${item.price.toFixed(2)}</p> {/* Increased font size */}
         </CardHeader>
-        <CardContent className="flex-grow flex flex-col justify-between p-3 pt-0 space-y-2">
+        <CardContent className="flex-grow flex flex-col justify-between p-3 space-y-2"> {/* Adjusted padding */}
           <div className="flex flex-wrap gap-1">
             {item.dietaryTags.map((tag) => (
               <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-white text-xs px-2 py-1">
@@ -291,7 +291,7 @@ const MenuScreen = () => {
                 size="icon"
                 onClick={() => handlePageNav('up')}
                 disabled={currentPageIndex === 0}
-                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow/40 rounded-md shadow-md"
+                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md" // Solid background for contrast
               >
                 <ChevronUp className="h-10 w-10" />
               </Button>
@@ -300,7 +300,7 @@ const MenuScreen = () => {
                 size="icon"
                 onClick={() => handlePageNav('down')}
                 disabled={currentPageIndex === totalPages - 1}
-                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow/40 rounded-md shadow-md"
+                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md" // Solid background for contrast
               >
                 <ChevronDown className="h-10 w-10" />
               </Button>

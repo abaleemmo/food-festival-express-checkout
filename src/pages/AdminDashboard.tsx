@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { FoodItem, DietaryTag, LineSide } from '@/context/FoodContext';
+import { FoodItem, DietaryTag, LineSide, CartItem } from '@/context/FoodContext'; // Import CartItem
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,7 +17,7 @@ interface Transaction {
   user_id: string | null;
   total_amount: number;
   item_count: number;
-  items_purchased: any; // JSONB
+  items_purchased: CartItem[]; // Explicitly type items_purchased as CartItem[]
   created_at: string;
 }
 
@@ -32,8 +32,15 @@ const AdminDashboard = () => {
     image: '',
     dietaryTags: [],
     lineSide: 'Left',
-    origin: '', // Added origin field
+    origin: '',
   });
+
+  // New state for aggregated stats
+  const [hourlySales, setHourlySales] = useState<Record<string, number>>({});
+  const [itemSales, setItemSales] = useState<Record<string, { quantity: number; revenue: number }>>({});
+  const [averageTransactionValue, setAverageTransactionValue] = useState<number>(0);
+  const [mostPopularItems, setMostPopularItems] = useState<Array<{ name: string; quantity: number; revenue: number }>>([]);
+  const [leastPopularItems, setLeastPopularItems] = useState<Array<{ name: string; quantity: number; revenue: number }>>([]);
 
   useEffect(() => {
     fetchFoodItems();
@@ -49,12 +56,56 @@ const AdminDashboard = () => {
     }
   };
 
+  const processTransactionData = (fetchedTransactions: Transaction[]) => {
+    const newHourlySales: Record<string, number> = {};
+    const newItemSales: Record<string, { quantity: number; revenue: number }> = {};
+    let totalRevenue = 0;
+
+    fetchedTransactions.forEach(t => {
+      const transactionDate = new Date(t.created_at);
+      const hour = transactionDate.getHours().toString().padStart(2, '0'); // "08", "09"
+
+      // Hourly Sales
+      newHourlySales[hour] = (newHourlySales[hour] || 0) + t.total_amount;
+
+      // Item-by-item sales
+      if (t.items_purchased && Array.isArray(t.items_purchased)) {
+        t.items_purchased.forEach((item: CartItem) => {
+          if (!newItemSales[item.name]) {
+            newItemSales[item.name] = { quantity: 0, revenue: 0 };
+          }
+          newItemSales[item.name].quantity += item.quantity;
+          newItemSales[item.name].revenue += item.price * item.quantity;
+        });
+      }
+      totalRevenue += t.total_amount;
+    });
+
+    // Calculate average transaction value
+    const avgTxValue = fetchedTransactions.length > 0 ? totalRevenue / fetchedTransactions.length : 0;
+
+    // Calculate most/least popular items
+    const itemSalesArray = Object.entries(newItemSales).map(([name, data]) => ({
+      name,
+      quantity: data.quantity,
+      revenue: data.revenue,
+    }));
+    const sortedByQuantity = [...itemSalesArray].sort((a, b) => b.quantity - a.quantity);
+
+    setHourlySales(newHourlySales);
+    setItemSales(newItemSales);
+    setAverageTransactionValue(avgTxValue);
+    setMostPopularItems(sortedByQuantity.slice(0, 5)); // Top 5
+    setLeastPopularItems(sortedByQuantity.slice(-5).reverse()); // Bottom 5
+  };
+
   const fetchTransactions = async () => {
     const { data, error } = await supabase.from('transactions').select('*');
     if (error) {
       showError('Error fetching transactions: ' + error.message);
     } else {
       setTransactions(data as Transaction[]);
+      processTransactionData(data as Transaction[]); // Process the fetched data
     }
   };
 
@@ -98,7 +149,7 @@ const AdminDashboard = () => {
         image: editingItem.image,
         dietaryTags: editingItem.dietaryTags,
         lineSide: editingItem.lineSide,
-        origin: editingItem.origin, // Added origin to update
+        origin: editingItem.origin,
       }).eq('id', editingItem.id);
       if (error) {
         showError('Error updating food item: ' + error.message);
@@ -115,7 +166,7 @@ const AdminDashboard = () => {
         image: newItem.image,
         dietaryTags: newItem.dietaryTags,
         lineSide: newItem.lineSide,
-        origin: newItem.origin, // Added origin to insert
+        origin: newItem.origin,
       });
       if (error) {
         showError('Error adding food item: ' + error.message);
@@ -128,7 +179,7 @@ const AdminDashboard = () => {
           image: '',
           dietaryTags: [],
           lineSide: 'Left',
-          origin: '', // Reset origin
+          origin: '',
         });
         fetchFoodItems();
       }
@@ -156,7 +207,6 @@ const AdminDashboard = () => {
 
     if (direction === 'up' && itemIndex > 0) {
       const prevItem = itemsInCurrentLine[itemIndex - 1];
-      // Swap created_at timestamps to reorder
       const { error: error1 } = await supabase.from('food_items').update({ created_at: prevItem.created_at }).eq('id', itemToMove.id);
       const { error: error2 } = await supabase.from('food_items').update({ created_at: itemToMove.created_at }).eq('id', prevItem.id);
       if (error1 || error2) {
@@ -166,7 +216,6 @@ const AdminDashboard = () => {
       }
     } else if (direction === 'down' && itemIndex < itemsInCurrentLine.length - 1) {
       const nextItem = itemsInCurrentLine[itemIndex + 1];
-      // Swap created_at timestamps to reorder
       const { error: error1 } = await supabase.from('food_items').update({ created_at: nextItem.created_at }).eq('id', itemToMove.id);
       const { error: error2 } = await supabase.from('food_items').update({ created_at: itemToMove.created_at }).eq('id', nextItem.id);
       if (error1 || error2) {
@@ -188,26 +237,53 @@ const AdminDashboard = () => {
       t.user_id || 'N/A',
       t.total_amount.toFixed(2),
       t.item_count,
-      JSON.stringify(t.items_purchased),
+      JSON.stringify(t.items_purchased.map(item => `${item.name} (x${item.quantity})`)), // More readable items purchased
       new Date(t.created_at).toLocaleString(),
     ]);
 
-    const csvContent = [
+    let csvContent = [
       headers.join(','),
       ...rows.map(row => row.join(',')),
     ].join('\n');
+
+    // Add Hourly Sales Summary
+    csvContent += '\n\n--- Hourly Sales Summary ---\n';
+    csvContent += 'Hour,Total Sales\n';
+    Object.entries(hourlySales).sort(([h1], [h2]) => parseInt(h1) - parseInt(h2)).forEach(([hour, sales]) => {
+      csvContent += `${hour}:00,$${sales.toFixed(2)}\n`;
+    });
+
+    // Add Item-by-Item Sales Summary
+    csvContent += '\n\n--- Item-by-Item Sales Summary ---\n';
+    csvContent += 'Item Name,Quantity Sold,Total Revenue\n';
+    Object.entries(itemSales).forEach(([name, data]) => {
+      csvContent += `${name},${data.quantity},$${data.revenue.toFixed(2)}\n`;
+    });
+
+    // Add Overall Sales Summary
+    csvContent += '\n\n--- Overall Sales Summary ---\n';
+    csvContent += `Average Transaction Value,$${averageTransactionValue.toFixed(2)}\n`;
+    csvContent += `Most Popular Items:\n`;
+    mostPopularItems.forEach(item => {
+      csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
+    });
+    csvContent += `Least Popular Items:\n`;
+    leastPopularItems.forEach(item => {
+      csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
+    });
+
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', 'transactions_export.csv');
+      link.setAttribute('download', 'transactions_and_stats_export.csv');
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      showSuccess('Transactions exported to CSV!');
+      showSuccess('Transactions and detailed stats exported to CSV!');
     }
   };
 
@@ -223,7 +299,7 @@ const AdminDashboard = () => {
           <TableHead className="text-festival-charcoal-gray">Name</TableHead>
           <TableHead className="text-festival-charcoal-gray">Price</TableHead>
           <TableHead className="text-festival-charcoal-gray">Tags</TableHead>
-          <TableHead className="text-festival-charcoal-gray">Origin</TableHead> {/* Added Origin column header */}
+          <TableHead className="text-festival-charcoal-gray">Origin</TableHead>
           <TableHead className="text-right text-festival-charcoal-gray">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -233,7 +309,7 @@ const AdminDashboard = () => {
             <TableCell className="font-medium">{item.name}</TableCell>
             <TableCell>${item.price.toFixed(2)}</TableCell>
             <TableCell>{item.dietaryTags.join(', ')}</TableCell>
-            <TableCell>{item.origin || 'N/A'}</TableCell> {/* Display origin */}
+            <TableCell>{item.origin || 'N/A'}</TableCell>
             <TableCell className="text-right flex justify-end space-x-2">
               <Button variant="ghost" size="icon" onClick={() => handleReorder(item.id, 'up', lineSide)} disabled={index === 0}>
                 <ChevronUp className="h-4 w-4 text-festival-forest-green" />
@@ -345,7 +421,7 @@ const AdminDashboard = () => {
               />
             </div>
             <div className="md:col-span-2">
-              <Label htmlFor="origin" className="text-festival-charcoal-gray">Country/Area of Origin</Label> {/* Added Origin input */}
+              <Label htmlFor="origin" className="text-festival-charcoal-gray">Country/Area of Origin</Label>
               <Input
                 id="origin"
                 name="origin"

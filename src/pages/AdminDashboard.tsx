@@ -141,8 +141,7 @@ const AdminDashboard = () => {
         price: editingItem.price,
         description: editingItem.description,
         image: editingItem.image,
-        dietary_tags: editingItem.dietaryTags, // Changed to snake_case
-        // lineSide is not updated via edit form
+        dietary_tags: editingItem.dietaryTags,
         origin: editingItem.origin,
       }).eq('id', editingItem.id);
       if (error) {
@@ -159,12 +158,12 @@ const AdminDashboard = () => {
         price: newItem.price,
         description: newItem.description,
         image: newItem.image,
-        dietary_tags: newItem.dietaryTags, // Changed to snake_case
+        dietary_tags: newItem.dietaryTags,
         origin: newItem.origin,
       };
 
-      const { error: errorLeft } = await supabase.from('food_items').insert({ ...baseItem, lineSide: 'Left' });
-      const { error: errorRight } = await supabase.from('food_items').insert({ ...baseItem, lineSide: 'Right' });
+      const { error: errorLeft } = await supabase.from('food_items').insert({ ...baseItem, line_side: 'Left' }); // Changed to line_side
+      const { error: errorRight } = await supabase.from('food_items').insert({ ...baseItem, line_side: 'Right' }); // Changed to line_side
 
       if (errorLeft || errorRight) {
         showError('Error adding food item to both lines: ' + (errorLeft?.message || errorRight?.message));
@@ -264,6 +263,7 @@ const AdminDashboard = () => {
     mostPopularItems.forEach(item => {
       csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
     });
+    csvContent += `Least Popular Items:\n`;
     leastPopularItems.forEach(item => {
       csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
     });

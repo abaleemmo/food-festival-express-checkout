@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +11,7 @@ import { useFood, FoodItem, CartItem, DietaryTag } from '@/context/FoodContext';
 import { ShoppingCart, Plus, Minus, ChevronLeft, Info, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils'; // Import cn for conditional class merging
+import { cn } from '@/lib/utils';
 
 const ITEMS_PER_PAGE = 3;
 
@@ -59,6 +59,15 @@ const MenuScreen = () => {
   }, [foodItems, lineSide, dietaryRestrictions]);
 
   const totalPages = Math.ceil(displayFoodItems.length / ITEMS_PER_PAGE);
+
+  // Effect to set initial page to the last one once totalPages is known
+  useEffect(() => {
+    if (totalPages > 0) {
+      setCurrentPageIndex(totalPages - 1);
+    } else {
+      setCurrentPageIndex(0);
+    }
+  }, [totalPages]);
 
   const currentItems = useMemo(() => {
     const startIndex = currentPageIndex * ITEMS_PER_PAGE;
@@ -214,21 +223,23 @@ const MenuScreen = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray overflow-hidden">
-      {/* Header for Back Button and Line Title */}
-      <div className="p-4 flex items-center justify-between lg:justify-start">
-        <Button
-          variant="default"
-          size="lg"
-          onClick={handleBack}
-          className="bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white px-6 py-3 rounded-lg shadow-md flex items-center space-x-2"
-        >
-          <ChevronLeft className="h-5 w-5" />
-          <span className="text-lg font-semibold">Back</span>
-        </Button>
-        <h1 className="text-5xl md:text-6xl font-bold text-center text-festival-dark-red flex-1 lg:ml-8">
+      {/* Header for Line Title */}
+      <div className="p-4 flex justify-center"> {/* Centered title */}
+        <h1 className="text-5xl md:text-6xl font-bold text-center text-festival-dark-red">
           {lineSide} Line
         </h1>
       </div>
+
+      {/* Back Button - Fixed at bottom-left */}
+      <Button
+        variant="default"
+        size="lg"
+        onClick={handleBack}
+        className="fixed bottom-4 left-4 bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white rounded-full p-4 shadow-lg flex items-center space-x-2 z-50"
+      >
+        <ChevronLeft className="h-6 w-6" />
+        <span className="text-lg font-semibold hidden md:inline">Back</span>
+      </Button>
 
       {/* Main content area (Menu + Cart) */}
       <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0">

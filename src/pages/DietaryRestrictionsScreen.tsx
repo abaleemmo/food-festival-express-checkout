@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useFood, DietaryTag } from '@/context/FoodContext';
-import { ChevronLeft } from 'lucide-react'; // Import the back icon
+import { ChevronLeft } from 'lucide-react';
 
 const DietaryRestrictionsScreen = () => {
   const navigate = useNavigate();
@@ -15,21 +15,22 @@ const DietaryRestrictionsScreen = () => {
   };
 
   const handleBack = () => {
-    navigate(-1); // Go back to the previous page
+    navigate(-1);
   };
 
   const restrictions: DietaryTag[] = ["Vegetarian", "Vegan", "Gluten-Free"];
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-festival-cream text-festival-charcoal-gray">
-      <div className="absolute top-4 left-4">
+      <div className="absolute top-4 left-4 z-10"> {/* Added z-10 to ensure it's above other content */}
         <Button
-          variant="ghost"
-          size="icon"
+          variant="default" // Changed to default variant for a solid background
+          size="lg" // Increased size for better touch target
           onClick={handleBack}
-          className="text-festival-charcoal-gray hover:bg-festival-cream/50"
+          className="bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white px-6 py-3 rounded-lg shadow-md flex items-center space-x-2" // Custom styling for prominence
         >
-          <ChevronLeft className="h-6 w-6" />
+          <ChevronLeft className="h-5 w-5" />
+          <span className="text-lg font-semibold">Back</span> {/* Added "Back" text */}
         </Button>
       </div>
       <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center text-festival-dark-red">

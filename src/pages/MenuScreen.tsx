@@ -101,31 +101,25 @@ const MenuScreen = () => {
   };
 
   const renderFoodItemCard = (item: FoodItem & { isDisabled: boolean }) => {
-    const cartItem = cart.find((ci) => ci.id === item.id);
-    const quantity = cartItem ? cartItem.quantity : 0;
+    // const cartItem = cart.find((ci) => ci.id === item.id); // Not needed for simple add button
+    // const quantity = cartItem ? cartItem.quantity : 0; // Not needed for simple add button
 
-    const [animateQuantity, setAnimateQuantity] = useState(false);
+    // const [animateQuantity, setAnimateQuantity] = useState(false); // Not needed for simple add button
 
-    useEffect(() => {
-      if (quantity > 0) {
-        setAnimateQuantity(true);
-        const timer = setTimeout(() => setAnimateQuantity(false), 300); // Match animation duration
-        return () => clearTimeout(timer);
-      }
-    }, [quantity]);
+    // useEffect(() => { // Not needed for simple add button
+    //   if (quantity > 0) {
+    //     setAnimateQuantity(true);
+    //     const timer = setTimeout(() => setAnimateQuantity(false), 300); // Match animation duration
+    //     return () => clearTimeout(timer);
+    //   }
+    // }, [quantity]);
 
     return (
       <Card
         key={item.id}
         className={`flex flex-col bg-festival-white shadow-lg rounded-lg overflow-hidden w-full ${item.isDisabled ? 'opacity-50' : ''}`}
       >
-        {item.image && (
-          <img
-            src={item.image}
-            alt={item.name}
-            className="w-full h-32 object-cover" // Slightly increased image height for single column
-          />
-        )}
+        {/* Image removed from here */}
         <CardHeader className="flex-grow-0 pb-2 pt-3 px-3">
           <CardTitle className="text-lg font-bold text-festival-deep-orange">
             {item.name}
@@ -133,18 +127,14 @@ const MenuScreen = () => {
           <p className="text-base font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
         </CardHeader>
         <CardContent className="flex-grow flex flex-col justify-between p-3 space-y-2">
-          <p className="text-sm text-festival-charcoal-gray mb-2">{item.description}</p> {/* Added description here */}
+          {/* Description removed from here */}
           <div className="flex flex-wrap gap-1">
             {item.dietaryTags.map((tag) => (
               <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-white text-xs px-2 py-1">
                 {tag}
               </Badge>
             ))}
-            {item.origin && (
-              <Badge variant="outline" className="border-festival-forest-green text-festival-forest-green text-xs px-2 py-1">
-                Origin: {item.origin}
-              </Badge>
-            )}
+            {/* Origin tag removed from here */}
           </div>
           <div className="flex items-center justify-between mt-auto pt-2">
             <Button
@@ -153,28 +143,12 @@ const MenuScreen = () => {
             >
               <Info className="h-4 w-4 mr-1" /> Info
             </Button>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => updateCartQuantity(item.id, quantity - 1)}
-                disabled={quantity === 0}
-                className="h-8 w-8 border-festival-forest-green text-festival-forest-green hover:bg-festival-cream rounded-full"
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <span className={`text-lg font-bold text-festival-charcoal-gray w-6 text-center ${animateQuantity ? 'animate-scale-bounce-once' : ''}`}>
-                {quantity}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => handleAddItem(item)} // Use handleAddItem to respect restrictions
-                className="h-8 w-8 border-festival-forest-green text-festival-forest-green hover:bg-festival-cream rounded-full"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button
+              onClick={() => handleAddItem(item)}
+              className="bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold text-sm py-1.5 h-auto rounded-full px-3"
+            >
+              <Plus className="h-4 w-4 mr-1" /> Add
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -286,9 +260,9 @@ const MenuScreen = () => {
             No food items available for your selection.
           </p>
         ) : (
-          <div className="relative w-full"> {/* New container for items and arrows, relative for arrow positioning */}
+          <div className="relative w-full flex justify-center"> {/* Centering container for items and arrows */}
             {/* Navigation Arrows - positioned absolutely */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col space-y-6 mr-4 z-10">
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col space-y-6 z-10"> {/* Removed mr-4 */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -312,7 +286,7 @@ const MenuScreen = () => {
             {/* Food Item Column - now takes full width */}
             <div
               key={currentPageIndex}
-              className="flex flex-col gap-4 w-full pl-20 transition-opacity duration-200 ease-in-out opacity-100" // Added pl-20 to make space for arrows
+              className="flex flex-col gap-4 w-full max-w-md transition-opacity duration-200 ease-in-out opacity-100" // Added max-w-md for better readability in single column
             >
               {currentItems.map((item) => renderFoodItemCard(item))}
             </div>

@@ -104,35 +104,35 @@ const MenuScreen = () => {
         <img
           src={item.image}
           alt={item.name}
-          className="w-full h-32 object-cover" // Made image smaller for mobile
+          className="w-full h-24 object-cover" // Made image smaller for mobile
         />
       )}
-      <CardHeader className="pb-2">
-        <CardTitle className="text-xl font-semibold text-festival-deep-orange"> {/* Smaller title */}
+      <CardHeader className="pb-1 pt-2 px-3">
+        <CardTitle className="text-base font-semibold text-festival-deep-orange truncate"> {/* Smaller title */}
           {item.name}
         </CardTitle>
-        <p className="text-lg font-bold text-festival-forest-green">${item.price.toFixed(2)}</p> {/* Smaller price */}
+        <p className="text-sm font-bold text-festival-forest-green">${item.price.toFixed(2)}</p> {/* Smaller price */}
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-between">
-        <div className="flex flex-wrap gap-1 mb-3"> {/* Smaller gap and margin */}
+      <CardContent className="flex-1 flex flex-col justify-between p-3 pt-0">
+        <div className="flex flex-wrap gap-1 mb-2"> {/* Smaller gap and margin */}
           {item.dietaryTags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-charcoal-gray text-xs"> {/* Smaller badge text */}
+            <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-charcoal-gray text-xs px-1 py-0.5"> {/* Smaller badge text */}
               {tag}
             </Badge>
           ))}
         </div>
-        <div className="flex space-x-2">
+        <div className="flex space-x-1"> {/* Smaller space between buttons */}
           <Button
             onClick={() => handleInfoClick(item)}
-            className="flex-1 bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-sm py-2" // Smaller button text/padding
+            className="flex-1 bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-xs py-1.5 h-auto" // Smaller button text/padding
           >
-            <Info className="h-4 w-4 mr-1" /> Info
+            <Info className="h-3 w-3 mr-1" /> Info
           </Button>
           <Button
             onClick={() => handleAddItem(item)}
-            className="flex-1 bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold text-sm py-2" // Smaller button text/padding
+            className="flex-1 bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold text-xs py-1.5 h-auto" // Smaller button text/padding
           >
-            <Plus className="h-4 w-4 mr-1" /> Add
+            <Plus className="h-3 w-3 mr-1" /> Add
           </Button>
         </div>
       </CardContent>
@@ -246,9 +246,7 @@ const MenuScreen = () => {
         <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center text-festival-dark-red">
           {lineSide} Line
         </h1>
-        <p className="text-lg md:text-xl mb-6 text-center">
-          Selected Restrictions: {dietaryRestrictions.length > 0 ? dietaryRestrictions.join(', ') : 'None'}
-        </p>
+        {/* Removed "Selected Restrictions" text */}
 
         {displayFoodItems.length === 0 ? (
           <p className="text-center text-xl text-festival-charcoal-gray md:col-span-2 lg:col-span-4">
@@ -264,7 +262,7 @@ const MenuScreen = () => {
                     size="icon"
                     onClick={() => handleMobileNav('up')}
                     disabled={currentMobileItemIndex === 0}
-                    className="text-festival-forest-green hover:bg-festival-cream h-12 w-12" // Larger arrows
+                    className="text-festival-forest-green hover:bg-festival-cream h-12 w-12 bg-festival-golden-yellow/20 rounded-md" // Larger arrows with background
                   >
                     <ChevronUp className="h-8 w-8" />
                   </Button>
@@ -273,12 +271,12 @@ const MenuScreen = () => {
                     size="icon"
                     onClick={() => handleMobileNav('down')}
                     disabled={currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE >= displayFoodItems.length}
-                    className="text-festival-forest-green hover:bg-festival-cream h-12 w-12" // Larger arrows
+                    className="text-festival-forest-green hover:bg-festival-cream h-12 w-12 bg-festival-golden-yellow/20 rounded-md" // Larger arrows with background
                   >
                     <ChevronDown className="h-8 w-8" />
                   </Button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 max-w-md"> {/* Item grid */}
+                <div className="grid grid-cols-2 gap-4 flex-1 max-w-md"> {/* Item grid, always 2 columns for mobile */}
                   {displayFoodItems.slice(currentMobileItemIndex, currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE).map((item) => renderFoodItemCard(item))}
                 </div>
               </div>

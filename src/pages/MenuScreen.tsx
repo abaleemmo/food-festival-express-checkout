@@ -1,20 +1,18 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { useFood, FoodItem, CartItem, DietaryTag } from '@/context/FoodContext';
-import { ShoppingCart, Plus, Minus, Trash2, ChevronLeft, Info, ChevronUp, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, ChevronLeft, Info, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-const MOBILE_ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 4; // Always display 4 items in a 2x2 grid
 
 const MenuScreen = () => {
   const navigate = useNavigate();
@@ -34,7 +32,7 @@ const MenuScreen = () => {
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
   const [isWarningDialogOpen, setIsWarningDialogOpen] = useState(false);
   const [itemToAddAfterWarning, setItemToAddAfterWarning] = useState<FoodItem | null>(null);
-  const [currentMobileItemIndex, setCurrentMobileItemIndex] = useState(0);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0); // Controls which set of 4 items is shown
 
   const handleBack = () => {
     navigate(-1);
@@ -59,6 +57,13 @@ const MenuScreen = () => {
     });
   }, [foodItems, lineSide, dietaryRestrictions]);
 
+  const totalPages = Math.ceil(displayFoodItems.length / ITEMS_PER_PAGE);
+
+  const currentItems = useMemo(() => {
+    const startIndex = currentPageIndex * ITEMS_PER_PAGE;
+    return displayFoodItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [displayFoodItems, currentPageIndex]);
+
   const cartTotal = useMemo(() => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   }, [cart]);
@@ -68,11 +73,11 @@ const MenuScreen = () => {
     setIsInfoDialogOpen(true);
   };
 
-  const handleMobileNav = (direction: 'up' | 'down') => {
+  const handlePageNav = (direction: 'up' | 'down') => {
     if (direction === 'up') {
-      setCurrentMobileItemIndex((prev) => Math.max(0, prev - MOBILE_ITEMS_PER_PAGE));
+      setCurrentPageIndex((prev) => Math.max(0, prev - 1));
     } else {
-      setCurrentMobileItemIndex((prev) => Math.min(displayFoodItems.length - MOBILE_ITEMS_PER_PAGE, prev + MOBILE_ITEMS_PER_PAGE));
+      setCurrentPageIndex((prev) => Math.min(totalPages - 1, prev + 1));
     }
   };
 
@@ -95,49 +100,83 @@ const MenuScreen = () => {
     setIsWarningDialogOpen(false);
   };
 
-  const renderFoodItemCard = (item: FoodItem & { isDisabled: boolean }) => (
-    <Card
-      key={item.id}
-      className={`bg-festival-white shadow-lg rounded-lg overflow-hidden flex flex-col ${item.isDisabled ? 'opacity-50' : ''}`}
-    >
-      {item.image && (
-        <img
-          src={item.image}
-          alt={item.name}
-          className="w-full h-20 object-cover" // Reduced image height
-        />
-      )}
-      <CardHeader className="pb-1 pt-2 px-2"> {/* Reduced padding */}
-        <CardTitle className="text-sm font-semibold text-festival-deep-orange truncate"> {/* Smaller title */}
-          {item.name}
-        </CardTitle>
-        <p className="text-xs font-bold text-festival-forest-green">${item.price.toFixed(2)}</p> {/* Smaller price */}
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-between p-2 pt-0"> {/* Reduced padding */}
-        <div className="flex flex-wrap gap-1 mb-2">
-          {item.dietaryTags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-charcoal-gray text-xs px-1 py-0.5">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-        <div className="flex space-x-1">
-          <Button
-            onClick={() => handleInfoClick(item)}
-            className="flex-1 bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-xs py-1 h-auto" // Smaller button text/padding
-          >
-            <Info className="h-3 w-3 mr-1" /> Info
-          </Button>
-          <Button
-            onClick={() => handleAddItem(item)}
-            className="flex-1 bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold text-xs py-1 h-auto" // Smaller button text/padding
-          >
-            <Plus className="h-3 w-3 mr-1" /> Add
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const renderFoodItemCard = (item: FoodItem & { isDisabled: boolean }) => {
+    const cartItem = cart.find((ci) => ci.id === item.id);
+    const quantity = cartItem ? cartItem.quantity : 0;
+
+    const [animateQuantity, setAnimateQuantity] = useState(false);
+
+    useEffect(() => {
+      if (quantity > 0) {
+        setAnimateQuantity(true);
+        const timer = setTimeout(() => setAnimateQuantity(false), 300); // Match animation duration
+        return () => clearTimeout(timer);
+      }
+    }, [quantity]);
+
+    return (
+      <Card
+        key={item.id}
+        className={`flex flex-col bg-festival-white shadow-lg rounded-lg overflow-hidden ${item.isDisabled ? 'opacity-50' : ''}
+          w-[calc(50%-0.5rem)] sm:w-[calc(50%-0.75rem)] // Adjust for gap on mobile/small screens
+          aspect-[1/1.3] // Fixed aspect ratio for equal height/width
+        `}
+      >
+        {item.image && (
+          <img
+            src={item.image}
+            alt={item.name}
+            className="w-full h-2/5 object-cover" // Image takes 40% height of the card
+          />
+        )}
+        <CardHeader className="flex-grow-0 pb-1 pt-2 px-3">
+          <CardTitle className="text-base font-bold text-festival-deep-orange truncate">
+            {item.name}
+          </CardTitle>
+          <p className="text-sm font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
+        </CardHeader>
+        <CardContent className="flex-grow flex flex-col justify-between p-3 pt-0 space-y-2">
+          <div className="flex flex-wrap gap-1">
+            {item.dietaryTags.map((tag) => (
+              <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-white text-xs px-2 py-1">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+          <div className="flex items-center justify-between mt-auto"> {/* Aligned at bottom */}
+            <Button
+              onClick={() => handleInfoClick(item)}
+              className="bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-xs py-1.5 h-auto rounded-full px-3"
+            >
+              <Info className="h-3 w-3 mr-1" /> Info
+            </Button>
+            <div className="flex items-center space-x-1">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => updateCartQuantity(item.id, quantity - 1)}
+                disabled={quantity === 0}
+                className="h-7 w-7 border-festival-forest-green text-festival-forest-green hover:bg-festival-cream rounded-full"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <span className={`text-lg font-bold text-festival-charcoal-gray w-6 text-center ${animateQuantity ? 'animate-scale-bounce-once' : ''}`}>
+                {quantity}
+              </span>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => handleAddItem(item)} // Use handleAddItem to respect restrictions
+                className="h-7 w-7 border-festival-forest-green text-festival-forest-green hover:bg-festival-cream rounded-full"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   const renderCartContent = () => (
     <div className="flex-1 flex flex-col">
@@ -167,17 +206,9 @@ const MenuScreen = () => {
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <Input
-                    type="number"
-                    value={item.quantity}
-                    onChange={(e) => {
-                      const newQuantity = parseInt(e.target.value);
-                      if (!isNaN(newQuantity) && newQuantity >= 0) {
-                        updateCartQuantity(item.id, newQuantity);
-                      }
-                    }}
-                    className="w-16 text-center bg-festival-cream border-festival-forest-green"
-                  />
+                  <span className="w-16 text-center text-festival-charcoal-gray font-semibold">
+                    {item.quantity}
+                  </span>
                   <Button
                     variant="outline"
                     size="icon"
@@ -246,38 +277,41 @@ const MenuScreen = () => {
         <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center text-festival-dark-red">
           {lineSide} Line
         </h1>
-        {/* Removed "Selected Restrictions" text */}
 
         {displayFoodItems.length === 0 ? (
           <p className="text-center text-xl text-festival-charcoal-gray md:col-span-2 lg:col-span-4">
             No food items available for your selection.
           </p>
         ) : (
-          <div className="flex w-full h-full"> {/* Ensure this container takes full height */}
-            {isMobile && (
-              <div className="flex flex-col space-y-6 mr-4 justify-center"> {/* Arrows container, centered vertically */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleMobileNav('up')}
-                  disabled={currentMobileItemIndex === 0}
-                  className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md" // Solid background for contrast
-                >
-                  <ChevronUp className="h-10 w-10" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleMobileNav('down')}
-                  disabled={currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE >= displayFoodItems.length}
-                  className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md" // Solid background for contrast
-                >
-                  <ChevronDown className="h-10 w-10" />
-                </Button>
-              </div>
-            )}
-            <div className="grid grid-cols-2 gap-4 flex-1"> {/* Item grid, now without max-w-md */}
-              {displayFoodItems.slice(currentMobileItemIndex, currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE).map((item) => renderFoodItemCard(item))}
+          <div className="flex w-full h-full items-center justify-center"> {/* Centering container */}
+            {/* Navigation Arrows */}
+            <div className="flex flex-col space-y-6 mr-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handlePageNav('up')}
+                disabled={currentPageIndex === 0}
+                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow/40 rounded-md shadow-md"
+              >
+                <ChevronUp className="h-10 w-10" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handlePageNav('down')}
+                disabled={currentPageIndex === totalPages - 1}
+                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow/40 rounded-md shadow-md"
+              >
+                <ChevronDown className="h-10 w-10" />
+              </Button>
+            </div>
+
+            {/* Food Item Grid */}
+            <div
+              key={currentPageIndex} // Key change triggers re-render and animation
+              className="grid grid-cols-2 gap-4 flex-1 transition-opacity duration-200 ease-in-out opacity-100"
+            >
+              {currentItems.map((item) => renderFoodItemCard(item))}
             </div>
           </div>
         )}

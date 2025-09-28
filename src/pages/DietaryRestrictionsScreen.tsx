@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useFood, DietaryTag } from '@/context/FoodContext';
+import { ChevronLeft } from 'lucide-react'; // Import the back icon
 
 const DietaryRestrictionsScreen = () => {
   const navigate = useNavigate();
@@ -13,10 +14,24 @@ const DietaryRestrictionsScreen = () => {
     navigate('/menu');
   };
 
+  const handleBack = () => {
+    navigate(-1); // Go back to the previous page
+  };
+
   const restrictions: DietaryTag[] = ["Vegetarian", "Vegan", "Gluten-Free"];
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-festival-cream text-festival-charcoal-gray">
+      <div className="absolute top-4 left-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="text-festival-charcoal-gray hover:bg-festival-cream/50"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </Button>
+      </div>
       <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center text-festival-dark-red">
         Any Dietary Restrictions?
       </h1>

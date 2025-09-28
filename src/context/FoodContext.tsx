@@ -1,4 +1,6 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { showError } from '@/utils/toast';
 
 export type DietaryTag = "Vegetarian" | "Vegan" | "Gluten-Free";
 export type LineSide = "Left" | "Right";
@@ -29,108 +31,30 @@ interface FoodContextType {
   removeFromCart: (itemId: string) => void;
   clearCart: () => void;
   setFoodItems: (items: FoodItem[]) => void; // For admin panel
+  fetchFoodItems: () => Promise<void>; // Expose fetch function for admin
 }
 
 const FoodContext = createContext<FoodContextType | undefined>(undefined);
 
-const initialFoodItems: FoodItem[] = [
-  {
-    id: "1",
-    name: "Spicy Tofu Stir-fry",
-    price: 12.50,
-    description: "Wok-fried tofu with fresh vegetables in a spicy Szechuan sauce. (Contains soy)",
-    image: "/placeholder.svg",
-    dietaryTags: ["Vegetarian", "Vegan"],
-    lineSide: "Left",
-  },
-  {
-    id: "2",
-    name: "Chicken Tikka Masala",
-    price: 15.00,
-    description: "Creamy tomato-based curry with tender chicken pieces, served with basmati rice. (Contains dairy)",
-    image: "/placeholder.svg",
-    dietaryTags: ["Gluten-Free"],
-    lineSide: "Left",
-  },
-  {
-    id: "3",
-    name: "Lentil Soup",
-    price: 8.00,
-    description: "Hearty and flavorful lentil soup, seasoned with traditional herbs and spices. (Naturally gluten-free)",
-    image: "/placeholder.svg",
-    dietaryTags: ["Vegetarian", "Vegan", "Gluten-Free"],
-    lineSide: "Left",
-  },
-  {
-    id: "4",
-    name: "Beef Bulgogi Bowl",
-    price: 16.00,
-    description: "Marinated grilled beef with rice, kimchi, and fresh vegetables. (Contains soy, sesame)",
-    image: "/placeholder.svg",
-    dietaryTags: [],
-    lineSide: "Left",
-  },
-  {
-    id: "5",
-    name: "Vegetable Spring Rolls",
-    price: 7.50,
-    description: "Crispy fried spring rolls filled with mixed vegetables, served with sweet chili sauce. (Contains gluten)",
-    image: "/placeholder.svg",
-    dietaryTags: ["Vegetarian", "Vegan"],
-    lineSide: "Left",
-  },
-  {
-    id: "6",
-    name: "Fish Tacos",
-    price: 14.00,
-    description: "Crispy battered fish in soft tortillas with cabbage slaw and a zesty crema. (Contains fish, dairy, gluten)",
-    image: "/placeholder.svg",
-    dietaryTags: [],
-    lineSide: "Right",
-  },
-  {
-    id: "7",
-    name: "Quinoa Salad",
-    price: 11.00,
-    description: "Refreshing salad with quinoa, cucumber, tomatoes, bell peppers, and a lemon-herb dressing. (Naturally gluten-free)",
-    image: "/placeholder.svg",
-    dietaryTags: ["Vegetarian", "Vegan", "Gluten-Free"],
-    lineSide: "Right",
-  },
-  {
-    id: "8",
-    name: "Pork Belly Bao Buns",
-    price: 13.50,
-    description: "Steamed bao buns filled with tender braised pork belly, pickled vegetables, and hoisin sauce. (Contains gluten, soy)",
-    image: "/placeholder.svg",
-    dietaryTags: [],
-    lineSide: "Right",
-  },
-  {
-    id: "9",
-    name: "Mango Sticky Rice",
-    price: 9.00,
-    description: "Sweet sticky rice with fresh mango slices and a drizzle of coconut milk. (Naturally gluten-free)",
-    image: "/placeholder.svg",
-    dietaryTags: ["Vegetarian", "Vegan", "Gluten-Free"],
-    lineSide: "Right",
-  },
-  {
-    id: "10",
-    name: "Beef Pho",
-    price: 14.50,
-    description: "Traditional Vietnamese noodle soup with tender beef slices, rice noodles, and aromatic broth. (Contains fish sauce)",
-    image: "/placeholder.svg",
-    dietaryTags: ["Gluten-Free"],
-    lineSide: "Right",
-  },
-];
-
 export const FoodProvider = ({ children }: { children: ReactNode }) => {
-  const [foodItems, setFoodItems] = useState<FoodItem[]>(initialFoodItems);
+  const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
   const [lineSide, setLineSide] = useState<LineSide | null>(null);
   const [dietaryRestrictions, setDietaryRestrictions] = useState<DietaryTag[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
+
+  const fetchFoodItems = useCallback(async () => {
+    const { data, error } = await supabase.from('food_items').select('*').order('created_at', { ascending: true });
+    if (error) {
+      showError('Error fetching food items: ' + error.message);
+      setFoodItems([]);
+    } else {
+      setFoodItems(data as FoodItem[]);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchFoodItems();
+  }, [fetchFoodItems]);
 
   const toggleDietaryRestriction = (restriction: DietaryTag) => {
     setDietaryRestrictions((prev) =>
@@ -185,6 +109,7 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
         removeFromCart,
         clearCart,
         setFoodItems,
+        fetchFoodItems,
       }}
     >
       {children}

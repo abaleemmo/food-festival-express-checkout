@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { FoodItem, DietaryTag, LineSide } from '@/context/FoodContext'; // Re-added LineSide import
+import { FoodItem, DietaryTag, LineSide } from '@/context/FoodContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,7 +31,8 @@ const AdminDashboard = () => {
     description: '',
     image: '',
     dietaryTags: [],
-    lineSide: 'Left', // Re-added lineSide
+    lineSide: 'Left',
+    origin: '', // Added origin field
   });
 
   useEffect(() => {
@@ -66,7 +67,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleSelectChange = (value: string) => { // Re-added handleSelectChange
+  const handleSelectChange = (value: string) => {
     if (editingItem) {
       setEditingItem({ ...editingItem, lineSide: value as LineSide });
     } else {
@@ -96,7 +97,8 @@ const AdminDashboard = () => {
         description: editingItem.description,
         image: editingItem.image,
         dietaryTags: editingItem.dietaryTags,
-        lineSide: editingItem.lineSide, // Re-added lineSide to update
+        lineSide: editingItem.lineSide,
+        origin: editingItem.origin, // Added origin to update
       }).eq('id', editingItem.id);
       if (error) {
         showError('Error updating food item: ' + error.message);
@@ -112,7 +114,8 @@ const AdminDashboard = () => {
         description: newItem.description,
         image: newItem.image,
         dietaryTags: newItem.dietaryTags,
-        lineSide: newItem.lineSide, // Re-added lineSide to insert
+        lineSide: newItem.lineSide,
+        origin: newItem.origin, // Added origin to insert
       });
       if (error) {
         showError('Error adding food item: ' + error.message);
@@ -124,7 +127,8 @@ const AdminDashboard = () => {
           description: '',
           image: '',
           dietaryTags: [],
-          lineSide: 'Left', // Re-added lineSide
+          lineSide: 'Left',
+          origin: '', // Reset origin
         });
         fetchFoodItems();
       }
@@ -219,6 +223,7 @@ const AdminDashboard = () => {
           <TableHead className="text-festival-charcoal-gray">Name</TableHead>
           <TableHead className="text-festival-charcoal-gray">Price</TableHead>
           <TableHead className="text-festival-charcoal-gray">Tags</TableHead>
+          <TableHead className="text-festival-charcoal-gray">Origin</TableHead> {/* Added Origin column header */}
           <TableHead className="text-right text-festival-charcoal-gray">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -228,6 +233,7 @@ const AdminDashboard = () => {
             <TableCell className="font-medium">{item.name}</TableCell>
             <TableCell>${item.price.toFixed(2)}</TableCell>
             <TableCell>{item.dietaryTags.join(', ')}</TableCell>
+            <TableCell>{item.origin || 'N/A'}</TableCell> {/* Display origin */}
             <TableCell className="text-right flex justify-end space-x-2">
               <Button variant="ghost" size="icon" onClick={() => handleReorder(item.id, 'up', lineSide)} disabled={index === 0}>
                 <ChevronUp className="h-4 w-4 text-festival-forest-green" />
@@ -338,7 +344,16 @@ const AdminDashboard = () => {
                 className="mt-1 bg-festival-cream border-festival-forest-green"
               />
             </div>
-            {/* Re-added Line Side selection */}
+            <div className="md:col-span-2">
+              <Label htmlFor="origin" className="text-festival-charcoal-gray">Country/Area of Origin</Label> {/* Added Origin input */}
+              <Input
+                id="origin"
+                name="origin"
+                value={editingItem?.origin || newItem.origin || ''}
+                onChange={handleInputChange}
+                className="mt-1 bg-festival-cream border-festival-forest-green"
+              />
+            </div>
             <div className="md:col-span-2">
               <Label htmlFor="lineSide" className="text-festival-charcoal-gray">Line Side</Label>
               <Select onValueChange={handleSelectChange} value={editingItem?.lineSide || newItem.lineSide}>
@@ -362,7 +377,9 @@ const AdminDashboard = () => {
                       onCheckedChange={(checked) => handleDietaryTagChange(tag, checked as boolean)}
                       className="border-festival-forest-green data-[state=checked]:bg-festival-forest-green data-[state=checked]:text-festival-white"
                     />
-                    <Label htmlFor={`tag-${tag}`} className="text-festival-charcoal-gray">{tag}</Label>
+                    <Label htmlFor={`tag-${tag}`} className="text-xl font-medium text-festival-charcoal-gray cursor-pointer">
+                      {tag}
+                    </Label>
                   </div>
                 ))}
               </div>

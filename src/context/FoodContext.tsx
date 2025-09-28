@@ -15,6 +15,7 @@ export interface FoodItem {
   lineSide: LineSide;
   created_at: string;
   updated_at: string;
+  origin: string | null; // Added origin field
 }
 
 export interface CartItem extends FoodItem {

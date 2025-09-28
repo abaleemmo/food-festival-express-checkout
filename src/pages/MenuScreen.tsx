@@ -52,9 +52,11 @@ const MenuScreen = () => {
     const itemsForLine = foodItems.filter((item) => item.lineSide === lineSide);
 
     return itemsForLine.map((item) => {
-      const isRestricted = dietaryRestrictions.length > 0 && item.dietaryTags.some((tag) =>
-        dietaryRestrictions.includes(tag)
-      );
+      // An item is restricted (should be greyed out) if:
+      // 1. Dietary restrictions are selected AND
+      // 2. The item does NOT satisfy ALL of the selected dietary restrictions.
+      const isRestricted = dietaryRestrictions.length > 0 &&
+                           !dietaryRestrictions.every(selectedTag => item.dietaryTags.includes(selectedTag));
       return { ...item, isDisabled: isRestricted };
     });
   }, [foodItems, lineSide, dietaryRestrictions]);
@@ -226,7 +228,7 @@ const MenuScreen = () => {
   return (
     <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray overflow-hidden">
       {/* Header for Line Title */}
-      <div className="p-4 flex justify-center"> {/* Centered title */}
+      <div className="p-4 flex justify-center">
         <h1 className="text-5xl md:text-6xl font-bold text-center text-festival-dark-red">
           {lineSide} Line
         </h1>

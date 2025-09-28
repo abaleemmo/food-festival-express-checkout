@@ -10,6 +10,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CheckoutScreen from "./pages/CheckoutScreen"; // Import the new CheckoutScreen
 import NotFound from "./pages/NotFound";
 import { FoodProvider } from "@/context/FoodContext";
+import RedirectOnReload from "./components/RedirectOnReload"; // New import
 
 const queryClient = new QueryClient();
 
@@ -20,15 +21,17 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <FoodProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/dietary-restrictions" element={<DietaryRestrictionsScreen />} />
-            <Route path="/menu" element={<MenuScreen />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/checkout" element={<CheckoutScreen />} /> {/* New Checkout Screen Route */}
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <RedirectOnReload> {/* Wrap routes with the redirect component */}
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/dietary-restrictions" element={<DietaryRestrictionsScreen />} />
+              <Route path="/menu" element={<MenuScreen />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/checkout" element={<CheckoutScreen />} /> {/* New Checkout Screen Route */}
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </RedirectOnReload>
         </FoodProvider>
       </BrowserRouter>
     </TooltipProvider>

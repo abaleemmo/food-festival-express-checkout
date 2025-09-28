@@ -126,16 +126,16 @@ const MenuScreen = () => {
           <img
             src={item.image}
             alt={item.name}
-            className="w-full h-28 object-cover" // Fixed image height
+            className="w-full h-24 object-cover" // Adjusted image height
           />
         )}
-        <CardHeader className="flex-grow-0 pb-2 pt-3 px-3"> {/* Adjusted padding */}
-          <CardTitle className="text-md font-bold text-festival-deep-orange"> {/* Increased font size, removed truncate */}
+        <CardHeader className="flex-grow-0 pb-2 pt-3 px-3">
+          <CardTitle className="text-base font-bold text-festival-deep-orange">
             {item.name}
           </CardTitle>
-          <p className="text-sm font-bold text-festival-forest-green">${item.price.toFixed(2)}</p> {/* Increased font size */}
+          <p className="text-sm font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
         </CardHeader>
-        <CardContent className="flex-grow flex flex-col justify-between p-3 space-y-2"> {/* Adjusted padding */}
+        <CardContent className="flex-grow flex flex-col justify-between p-3 space-y-2">
           <div className="flex flex-wrap gap-1">
             {item.dietaryTags.map((tag) => (
               <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-white text-xs px-2 py-1">
@@ -143,7 +143,7 @@ const MenuScreen = () => {
               </Badge>
             ))}
           </div>
-          <div className="flex items-center justify-between mt-auto"> {/* Aligned at bottom */}
+          <div className="flex items-center justify-between mt-auto">
             <Button
               onClick={() => handleInfoClick(item)}
               className="bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-xs py-1.5 h-auto rounded-full px-3"

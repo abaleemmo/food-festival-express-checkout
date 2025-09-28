@@ -276,7 +276,7 @@ const MenuScreen = () => {
       </div>
 
       {/* Main Menu Content */}
-      <div className="flex-1 p-4 lg:pl-28 lg:pr-8"> {/* Adjusted padding for back button */}
+      <div className="flex-1 p-4 lg:pl-28 lg:pr-8 relative"> {/* Added relative for absolute positioning */}
         <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center text-festival-dark-red">
           {lineSide} Line
         </h1>
@@ -286,15 +286,15 @@ const MenuScreen = () => {
             No food items available for your selection.
           </p>
         ) : (
-          <div className="flex w-full h-full items-center justify-center"> {/* Centering container */}
-            {/* Navigation Arrows */}
-            <div className="flex flex-col space-y-6 mr-4">
+          <div className="relative w-full"> {/* New container for items and arrows, relative for arrow positioning */}
+            {/* Navigation Arrows - positioned absolutely */}
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col space-y-6 mr-4 z-10">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => handlePageNav('up')}
                 disabled={currentPageIndex === 0}
-                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md" // Solid background for contrast
+                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md"
               >
                 <ChevronUp className="h-10 w-10" />
               </Button>
@@ -303,16 +303,16 @@ const MenuScreen = () => {
                 size="icon"
                 onClick={() => handlePageNav('down')}
                 disabled={currentPageIndex === totalPages - 1}
-                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md" // Solid background for contrast
+                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md"
               >
                 <ChevronDown className="h-10 w-10" />
               </Button>
             </div>
 
-            {/* Food Item Column */}
+            {/* Food Item Column - now takes full width */}
             <div
-              key={currentPageIndex} // Key change triggers re-render and animation
-              className="flex flex-col gap-4 flex-1 transition-opacity duration-200 ease-in-out opacity-100"
+              key={currentPageIndex}
+              className="flex flex-col gap-4 w-full pl-20 transition-opacity duration-200 ease-in-out opacity-100" // Added pl-20 to make space for arrows
             >
               {currentItems.map((item) => renderFoodItemCard(item))}
             </div>

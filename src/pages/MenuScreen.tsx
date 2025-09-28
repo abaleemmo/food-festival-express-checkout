@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -113,7 +113,6 @@ const MenuScreen = () => {
           <p className="text-base font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
         </CardHeader>
         <CardContent className="flex-grow flex flex-col justify-between p-3 space-y-2">
-          {/* Dietary tags and origin tag removed from here */}
           <div className="flex items-center justify-between mt-auto pt-2">
             <Button
               onClick={() => handleInfoClick(item)}
@@ -213,9 +212,9 @@ const MenuScreen = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row p-4 bg-festival-cream text-festival-charcoal-gray">
-      {/* Back Button */}
-      <div className={`z-10 ${isMobile ? 'fixed bottom-4 left-4' : 'absolute top-4 left-4'}`}>
+    <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray">
+      {/* Header for Back Button */}
+      <div className="p-4 flex justify-start">
         <Button
           variant="default"
           size="lg"
@@ -227,76 +226,79 @@ const MenuScreen = () => {
         </Button>
       </div>
 
-      {/* Main Menu Content */}
-      <div className="flex-1 p-4 lg:pl-28 lg:pr-8 relative"> {/* Added relative for absolute positioning */}
-        <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center text-festival-dark-red">
-          {lineSide} Line
-        </h1>
+      {/* Main content area (Menu + Cart) */}
+      <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0">
+        {/* Menu Content (Arrows + Food Items) */}
+        <div className="flex-1 p-4 relative">
+          <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center text-festival-dark-red">
+            {lineSide} Line
+          </h1>
 
-        {displayFoodItems.length === 0 ? (
-          <p className="text-center text-xl text-festival-charcoal-gray">
-            No food items available for your selection.
-          </p>
+          {displayFoodItems.length === 0 ? (
+            <p className="text-center text-xl text-festival-charcoal-gray">
+              No food items available for your selection.
+            </p>
+          ) : (
+            <div className="flex flex-row items-start justify-center w-full">
+              {/* Navigation Arrows - in their own column */}
+              <div className="flex flex-col space-y-6 mr-8 mt-16"> {/* Added mt-16 to align with card content */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handlePageNav('up')}
+                  disabled={currentPageIndex === 0}
+                  className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md"
+                >
+                  <ChevronUp className="h-10 w-10" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handlePageNav('down')}
+                  disabled={currentPageIndex === totalPages - 1}
+                  className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md"
+                >
+                  <ChevronDown className="h-10 w-10" />
+                </Button>
+              </div>
+
+              {/* Food Item Column */}
+              <div
+                key={currentPageIndex}
+                className="flex flex-col gap-4 w-full max-w-md transition-opacity duration-200 ease-in-out opacity-100"
+              >
+                {currentItems.map((item) => renderFoodItemCard(item))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Cart Sidebar (Desktop) / Cart Drawer (Mobile) */}
+        {isMobile ? (
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button className="fixed bottom-4 right-4 bg-festival-forest-green hover:bg-festival-forest-green/90 text-white rounded-full p-4 shadow-lg">
+                <ShoppingCart className="h-6 w-6" />
+                {cart.length > 0 && (
+                  <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-festival-deep-orange text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {cart.reduce((sum, item) => sum + item.quantity, 0)}
+                  </span>
+                )}
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="h-[80vh] bg-festival-cream">
+              <DrawerHeader>
+                <DrawerTitle className="text-festival-dark-red">Your Cart</DrawerTitle>
+              </DrawerHeader>
+              {renderCartContent()}
+            </DrawerContent>
+          </Drawer>
         ) : (
-          <div className="relative w-full flex justify-center"> {/* Centering container for items and arrows */}
-            {/* Navigation Arrows - positioned absolutely */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col space-y-6 z-10"> {/* Removed mr-4 */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handlePageNav('up')}
-                disabled={currentPageIndex === 0}
-                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md"
-              >
-                <ChevronUp className="h-10 w-10" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handlePageNav('down')}
-                disabled={currentPageIndex === totalPages - 1}
-                className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md"
-              >
-                <ChevronDown className="h-10 w-10" />
-              </Button>
-            </div>
-
-            {/* Food Item Column - now takes full width */}
-            <div
-              key={currentPageIndex}
-              className="flex flex-col gap-4 w-full max-w-md transition-opacity duration-200 ease-in-out opacity-100" // Added max-w-md for better readability in single column
-            >
-              {currentItems.map((item) => renderFoodItemCard(item))}
-            </div>
-          </div>
+          <Card className="w-full lg:w-96 mt-8 lg:mt-0 p-4 bg-festival-white shadow-lg rounded-lg flex flex-col">
+            {renderCartContent()}
+          </Card>
         )}
       </div>
-
-      {/* Cart Sidebar (Desktop) / Cart Drawer (Mobile) */}
-      {isMobile ? (
-        <Drawer>
-          <DrawerTrigger asChild>
-            <Button className="fixed bottom-4 right-4 bg-festival-forest-green hover:bg-festival-forest-green/90 text-white rounded-full p-4 shadow-lg">
-              <ShoppingCart className="h-6 w-6" />
-              {cart.length > 0 && (
-                <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-festival-deep-orange text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {cart.reduce((sum, item) => sum + item.quantity, 0)}
-                </span>
-              )}
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className="h-[80vh] bg-festival-cream">
-            <DrawerHeader>
-              <DrawerTitle className="text-festival-dark-red">Your Cart</DrawerTitle>
-            </DrawerHeader>
-            {renderCartContent()}
-          </DrawerContent>
-        </Drawer>
-      ) : (
-        <Card className="w-full lg:w-96 mt-8 lg:mt-0 p-4 bg-festival-white shadow-lg rounded-lg flex flex-col">
-          {renderCartContent()}
-        </Card>
-      )}
 
       {/* Info Dialog */}
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>

@@ -52,7 +52,20 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
       showError('Error fetching food items: ' + error.message);
       setFoodItems([]);
     } else {
-      setFoodItems(data as FoodItem[]);
+      // Map snake_case from DB to camelCase for the interface
+      const mappedData: FoodItem[] = data.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        description: item.description,
+        image: item.image,
+        dietaryTags: item.dietary_tags || [], // Ensure it's an array, default to empty
+        lineSide: item.line_side, // Map line_side to lineSide
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        origin: item.origin,
+      }));
+      setFoodItems(mappedData);
     }
   }, []);
 

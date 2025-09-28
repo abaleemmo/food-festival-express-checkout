@@ -98,11 +98,21 @@ export default {
           "0%, 100%": { transform: "scale(1)" },
           "50%": { transform: "scale(1.2)" },
         },
+        "slide-in-up": {
+          "0%": { transform: "translateY(100%)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "slide-in-down": {
+          "0%": { transform: "translateY(-100%)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "scale-bounce-once": "scale-bounce 0.3s ease-out", // New animation for quantity
+        "slide-in-up": "slide-in-up 0.3s ease-out forwards",
+        "slide-in-down": "slide-in-down 0.3s ease-out forwards",
       },
     },
   },

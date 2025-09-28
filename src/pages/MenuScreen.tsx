@@ -34,6 +34,7 @@ const MenuScreen = () => {
   const [isWarningDialogOpen, setIsWarningDialogOpen] = useState(false);
   const [itemToAddAfterWarning, setItemToAddAfterWarning] = useState<FoodItem | null>(null);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const [animationDirection, setAnimationDirection] = useState<'up' | 'down' | null>(null);
 
   const handleBack = () => {
     navigate(-1);
@@ -84,6 +85,7 @@ const MenuScreen = () => {
   };
 
   const handlePageNav = (direction: 'up' | 'down') => {
+    setAnimationDirection(direction); // Set animation direction
     if (direction === 'up') {
       setCurrentPageIndex((prev) => Math.max(0, prev - 1));
     } else {
@@ -232,8 +234,6 @@ const MenuScreen = () => {
 
       {/* Back Button - Fixed at bottom-left */}
       <Button
-        variant="default"
-        size="lg"
         onClick={handleBack}
         className="fixed bottom-4 left-4 bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white rounded-full p-4 shadow-lg flex items-center space-x-2 z-50"
       >
@@ -281,8 +281,13 @@ const MenuScreen = () => {
 
               {/* Food Item Column - now takes full width */}
               <div
-                key={currentPageIndex}
-                className="flex flex-col gap-4 w-full max-w-md ml-24 transition-opacity duration-200 ease-in-out opacity-100"
+                key={currentPageIndex} // Key change triggers remount and animation
+                className={cn(
+                  "flex flex-col gap-4 w-full max-w-md ml-24 transition-opacity duration-200 ease-in-out",
+                  animationDirection === 'up' && currentPageIndex !== totalPages -1 ? "animate-slide-in-down" : "", // Slide down when moving up pages
+                  animationDirection === 'down' && currentPageIndex !== 0 ? "animate-slide-in-up" : "", // Slide up when moving down pages
+                  animationDirection === null ? "opacity-100" : "" // Initial state or after animation
+                )}
               >
                 {currentItems.map((item) => renderFoodItemCard(item))}
               </div>

@@ -363,11 +363,10 @@ const MenuScreen = () => {
           <DialogHeader>
             <DialogTitle className="text-festival-dark-red">Dietary Restriction Warning</DialogTitle>
             <DialogDescription className="text-festival-charcoal-gray">
-              This item does not meet your selected dietary restrictions (
-              {itemToAddAfterWarning?.dietaryTags.join(', ') || 'None specified for item'}). Are you sure you want to add it to your cart?
+              This item does not meet your selected dietary restrictions. Are you sure you want to add it to your cart?
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-center space-x-2"> {/* Changed justify-end to justify-center */}
             <Button variant="outline" onClick={() => setIsWarningDialogOpen(false)} className="border-festival-dark-red text-festival-dark-red hover:bg-festival-dark-red/10">
               Cancel
             </Button>

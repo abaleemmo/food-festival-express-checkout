@@ -104,35 +104,35 @@ const MenuScreen = () => {
         <img
           src={item.image}
           alt={item.name}
-          className="w-full h-24 object-cover" // Made image smaller for mobile
+          className="w-full h-32 object-cover" // Slightly increased image height
         />
       )}
-      <CardHeader className="pb-1 pt-2 px-3">
-        <CardTitle className="text-base font-semibold text-festival-deep-orange truncate"> {/* Smaller title */}
+      <CardHeader className="pb-2 px-3">
+        <CardTitle className="text-base font-semibold text-festival-deep-orange truncate">
           {item.name}
         </CardTitle>
-        <p className="text-sm font-bold text-festival-forest-green">${item.price.toFixed(2)}</p> {/* Smaller price */}
+        <p className="text-sm font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between p-3 pt-0">
-        <div className="flex flex-wrap gap-1 mb-2"> {/* Smaller gap and margin */}
+        <div className="flex flex-wrap gap-1 mb-2">
           {item.dietaryTags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-charcoal-gray text-xs px-1 py-0.5"> {/* Smaller badge text */}
+            <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-charcoal-gray text-xs px-2 py-1"> {/* Adjusted badge padding */}
               {tag}
             </Badge>
           ))}
         </div>
-        <div className="flex space-x-1"> {/* Smaller space between buttons */}
+        <div className="flex space-x-1">
           <Button
             onClick={() => handleInfoClick(item)}
-            className="flex-1 bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-xs py-1.5 h-auto" // Smaller button text/padding
+            className="flex-1 bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-sm py-2 h-auto" // Adjusted button padding
           >
-            <Info className="h-3 w-3 mr-1" /> Info
+            <Info className="h-4 w-4 mr-1" /> Info
           </Button>
           <Button
             onClick={() => handleAddItem(item)}
-            className="flex-1 bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold text-xs py-1.5 h-auto" // Smaller button text/padding
+            className="flex-1 bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold text-sm py-2 h-auto" // Adjusted button padding
           >
-            <Plus className="h-3 w-3 mr-1" /> Add
+            <Plus className="h-4 w-4 mr-1" /> Add
           </Button>
         </div>
       </CardContent>
@@ -255,28 +255,28 @@ const MenuScreen = () => {
         ) : (
           <>
             {isMobile ? (
-              <div className="flex items-center justify-center w-full"> {/* Container for arrows and items */}
+              <div className="flex w-full justify-center"> {/* Main container for mobile menu items and arrows */}
                 <div className="flex flex-col space-y-6 mr-4"> {/* Arrows container */}
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => handleMobileNav('up')}
                     disabled={currentMobileItemIndex === 0}
-                    className="text-festival-forest-green hover:bg-festival-cream h-12 w-12 bg-festival-golden-yellow/20 rounded-md" // Larger arrows with background
+                    className="text-festival-forest-green hover:bg-festival-cream h-14 w-14 bg-festival-golden-yellow/20 rounded-md" // Larger arrows with background
                   >
-                    <ChevronUp className="h-8 w-8" />
+                    <ChevronUp className="h-10 w-10" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => handleMobileNav('down')}
                     disabled={currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE >= displayFoodItems.length}
-                    className="text-festival-forest-green hover:bg-festival-cream h-12 w-12 bg-festival-golden-yellow/20 rounded-md" // Larger arrows with background
+                    className="text-festival-forest-green hover:bg-festival-cream h-14 w-14 bg-festival-golden-yellow/20 rounded-md" // Larger arrows with background
                   >
-                    <ChevronDown className="h-8 w-8" />
+                    <ChevronDown className="h-10 w-10" />
                   </Button>
                 </div>
-                <div className="grid grid-cols-2 gap-4 flex-1 max-w-md"> {/* Item grid, always 2 columns for mobile */}
+                <div className="grid grid-cols-2 gap-4 flex-1"> {/* Item grid, now without max-w-md */}
                   {displayFoodItems.slice(currentMobileItemIndex, currentMobileItemIndex + MOBILE_ITEMS_PER_PAGE).map((item) => renderFoodItemCard(item))}
                 </div>
               </div>

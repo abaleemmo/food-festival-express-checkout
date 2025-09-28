@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { showError } from '@/utils/toast';
 
 export type DietaryTag = "Vegetarian" | "Vegan" | "Gluten-Free";
-export type LineSide = "Left" | "Right";
 
 export interface FoodItem {
   id: string;
@@ -12,9 +11,8 @@ export interface FoodItem {
   description: string;
   image: string;
   dietaryTags: DietaryTag[];
-  lineSide: LineSide;
-  created_at: string; // Added for reordering logic
-  updated_at: string; // Added for completeness
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CartItem extends FoodItem {
@@ -23,10 +21,8 @@ export interface CartItem extends FoodItem {
 
 interface FoodContextType {
   foodItems: FoodItem[];
-  lineSide: LineSide | null;
   dietaryRestrictions: DietaryTag[];
   cart: CartItem[];
-  setLineSide: (side: LineSide) => void;
   toggleDietaryRestriction: (restriction: DietaryTag) => void;
   addToCart: (item: FoodItem) => void;
   updateCartQuantity: (itemId: string, quantity: number) => void;
@@ -40,7 +36,6 @@ const FoodContext = createContext<FoodContextType | undefined>(undefined);
 
 export const FoodProvider = ({ children }: { children: ReactNode }) => {
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
-  const [lineSide, setLineSide] = useState<LineSide | null>(null);
   const [dietaryRestrictions, setDietaryRestrictions] = useState<DietaryTag[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
 
@@ -101,10 +96,8 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
     <FoodContext.Provider
       value={{
         foodItems,
-        lineSide,
         dietaryRestrictions,
         cart,
-        setLineSide,
         toggleDietaryRestriction,
         addToCart,
         updateCartQuantity,

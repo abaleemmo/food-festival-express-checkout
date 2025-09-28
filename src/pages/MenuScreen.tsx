@@ -101,25 +101,11 @@ const MenuScreen = () => {
   };
 
   const renderFoodItemCard = (item: FoodItem & { isDisabled: boolean }) => {
-    // const cartItem = cart.find((ci) => ci.id === item.id); // Not needed for simple add button
-    // const quantity = cartItem ? cartItem.quantity : 0; // Not needed for simple add button
-
-    // const [animateQuantity, setAnimateQuantity] = useState(false); // Not needed for simple add button
-
-    // useEffect(() => { // Not needed for simple add button
-    //   if (quantity > 0) {
-    //     setAnimateQuantity(true);
-    //     const timer = setTimeout(() => setAnimateQuantity(false), 300); // Match animation duration
-    //     return () => clearTimeout(timer);
-    //   }
-    // }, [quantity]);
-
     return (
       <Card
         key={item.id}
         className={`flex flex-col bg-festival-white shadow-lg rounded-lg overflow-hidden w-full ${item.isDisabled ? 'opacity-50' : ''}`}
       >
-        {/* Image removed from here */}
         <CardHeader className="flex-grow-0 pb-2 pt-3 px-3">
           <CardTitle className="text-lg font-bold text-festival-deep-orange">
             {item.name}
@@ -127,15 +113,7 @@ const MenuScreen = () => {
           <p className="text-base font-bold text-festival-forest-green">${item.price.toFixed(2)}</p>
         </CardHeader>
         <CardContent className="flex-grow flex flex-col justify-between p-3 space-y-2">
-          {/* Description removed from here */}
-          <div className="flex flex-wrap gap-1">
-            {item.dietaryTags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="bg-festival-golden-yellow text-festival-white text-xs px-2 py-1">
-                {tag}
-              </Badge>
-            ))}
-            {/* Origin tag removed from here */}
-          </div>
+          {/* Dietary tags and origin tag removed from here */}
           <div className="flex items-center justify-between mt-auto pt-2">
             <Button
               onClick={() => handleInfoClick(item)}

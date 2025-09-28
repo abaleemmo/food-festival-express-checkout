@@ -11,8 +11,9 @@ import { useFood, FoodItem, CartItem, DietaryTag } from '@/context/FoodContext';
 import { ShoppingCart, Plus, Minus, ChevronLeft, Info, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils'; // Import cn for conditional class merging
 
-const ITEMS_PER_PAGE = 3; // Changed from 4 to 3
+const ITEMS_PER_PAGE = 3;
 
 const MenuScreen = () => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const MenuScreen = () => {
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
   const [isWarningDialogOpen, setIsWarningDialogOpen] = useState(false);
   const [itemToAddAfterWarning, setItemToAddAfterWarning] = useState<FoodItem | null>(null);
-  const [currentPageIndex, setCurrentPageIndex] = useState(0); // Controls which set of 3 items is shown
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
   const handleBack = () => {
     navigate(-1);
@@ -212,7 +213,7 @@ const MenuScreen = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray overflow-hidden"> {/* Added overflow-hidden */}
+    <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray overflow-hidden">
       {/* Header for Back Button and Line Title */}
       <div className="p-4 flex items-center justify-between lg:justify-start">
         <Button
@@ -224,7 +225,7 @@ const MenuScreen = () => {
           <ChevronLeft className="h-5 w-5" />
           <span className="text-lg font-semibold">Back</span>
         </Button>
-        <h1 className="text-5xl md:text-6xl font-bold text-center text-festival-dark-red flex-1 lg:ml-8"> {/* Increased font size */}
+        <h1 className="text-5xl md:text-6xl font-bold text-center text-festival-dark-red flex-1 lg:ml-8">
           {lineSide} Line
         </h1>
       </div>
@@ -238,7 +239,7 @@ const MenuScreen = () => {
               No food items available for your selection.
             </p>
           ) : (
-            <div className="relative w-full flex justify-center"> {/* Centering container for items and arrows */}
+            <div className="relative w-full flex justify-center">
               {/* Navigation Arrows - positioned absolutely */}
               <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col space-y-6 z-10">
                 <Button
@@ -246,7 +247,10 @@ const MenuScreen = () => {
                   size="icon"
                   onClick={() => handlePageNav('up')}
                   disabled={currentPageIndex === 0}
-                  className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md"
+                  className={cn(
+                    "h-14 w-14 rounded-md shadow-md text-festival-charcoal-gray",
+                    currentPageIndex === 0 ? "bg-gray-300" : "bg-festival-cream hover:bg-festival-cream/80"
+                  )}
                 >
                   <ChevronUp className="h-10 w-10" />
                 </Button>
@@ -255,7 +259,10 @@ const MenuScreen = () => {
                   size="icon"
                   onClick={() => handlePageNav('down')}
                   disabled={currentPageIndex === totalPages - 1}
-                  className="text-festival-charcoal-gray hover:bg-festival-golden-yellow/50 h-14 w-14 bg-festival-golden-yellow rounded-md shadow-md"
+                  className={cn(
+                    "h-14 w-14 rounded-md shadow-md text-festival-charcoal-gray",
+                    currentPageIndex === totalPages - 1 ? "bg-gray-300" : "bg-festival-golden-yellow hover:bg-festival-golden-yellow/80"
+                  )}
                 >
                   <ChevronDown className="h-10 w-10" />
                 </Button>
@@ -264,7 +271,7 @@ const MenuScreen = () => {
               {/* Food Item Column - now takes full width */}
               <div
                 key={currentPageIndex}
-                className="flex flex-col gap-4 w-full max-w-md ml-24 transition-opacity duration-200 ease-in-out opacity-100" // Added ml-24 for spacing from arrows
+                className="flex flex-col gap-4 w-full max-w-md ml-24 transition-opacity duration-200 ease-in-out opacity-100"
               >
                 {currentItems.map((item) => renderFoodItemCard(item))}
               </div>

@@ -130,8 +130,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Removed handleSelectChange as lineSide is no longer selected in the form
-
   const handleDietaryTagChange = (tag: DietaryTag, checked: boolean) => {
     if (editingItem) {
       const updatedTags = checked
@@ -147,6 +145,25 @@ const AdminDashboard = () => {
   };
 
   const handleAddOrUpdateItem = async () => {
+    const itemToValidate = editingItem || newItem;
+
+    if (!itemToValidate.name.trim()) {
+      showError('Food item name cannot be empty.');
+      return;
+    }
+    if (itemToValidate.price <= 0) {
+      showError('Price must be a positive number.');
+      return;
+    }
+    if (!itemToValidate.description.trim()) {
+      showError('Description cannot be empty.');
+      return;
+    }
+    if (!itemToValidate.origin?.trim()) {
+      showError('Country/Area of Origin cannot be empty.');
+      return;
+    }
+
     if (editingItem) {
       // For editing, we update the specific item
       const { error } = await supabase.from('food_items').update({
@@ -175,8 +192,8 @@ const AdminDashboard = () => {
         origin: newItem.origin,
       };
 
-      const { error: errorLeft } = await supabase.from('food_items').insert({ ...baseItem, line_side: 'Left' }); // Changed to line_side
-      const { error: errorRight } = await supabase.from('food_items').insert({ ...baseItem, line_side: 'Right' }); // Changed to line_side
+      const { error: errorLeft } = await supabase.from('food_items').insert({ ...baseItem, line_side: 'Left' });
+      const { error: errorRight } = await supabase.from('food_items').insert({ ...baseItem, line_side: 'Right' });
 
       if (errorLeft || errorRight) {
         showError('Error adding food item to both lines: ' + (errorLeft?.message || errorRight?.message));
@@ -272,7 +289,6 @@ const AdminDashboard = () => {
     // Add Overall Sales Summary
     csvContent += '\n\n--- Overall Sales Summary ---\n';
     csvContent += `Average Transaction Value,$${averageTransactionValue.toFixed(2)}\n`;
-    csvContent += `Most Popular Items:\n`;
     mostPopularItems.forEach(item => {
       csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
     });
@@ -439,7 +455,6 @@ const AdminDashboard = () => {
                 className="mt-1 bg-festival-cream border-festival-forest-green"
               />
             </div>
-            {/* Removed Line Side selection from the form */}
             <div className="flex flex-col space-y-2 md:col-span-2">
               <Label className="text-festival-charcoal-gray">Dietary Tags</Label>
               <div className="flex flex-wrap gap-4">

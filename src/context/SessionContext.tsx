@@ -31,11 +31,8 @@ export const SessionContextProvider = ({ children }: { children: ReactNode }) =>
       } else {
         setSession(null);
         setUser(null);
-        // Redirect unauthenticated users to login page if trying to access protected routes
-        if (location.pathname === '/admin') {
-          navigate('/login', { replace: true });
-          showError('Please log in to access the admin dashboard.');
-        }
+        // No redirect for '/admin' here, as it's now unprotected.
+        // Other protected routes would still redirect to login if needed.
       }
       setLoading(false);
     });
@@ -51,11 +48,6 @@ export const SessionContextProvider = ({ children }: { children: ReactNode }) =>
         setUser(initialSession.user);
         if (location.pathname === '/login') {
           navigate('/', { replace: true });
-        }
-      } else {
-        if (location.pathname === '/admin') {
-          navigate('/login', { replace: true });
-          showError('Please log in to access the admin dashboard.');
         }
       }
       setLoading(false);

@@ -17,7 +17,7 @@ import React from "react";
 
 const queryClient = new QueryClient();
 
-// ProtectedRoute component to guard routes
+// ProtectedRoute component to guard routes (kept for potential future use, but not for Admin)
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useSession();
 
@@ -46,14 +46,8 @@ const App = () => (
                 <Route path="/dietary-restrictions" element={<DietaryRestrictionsScreen />} />
                 <Route path="/menu" element={<MenuScreen />} />
                 <Route path="/login" element={<Login />} /> {/* Add Login route */}
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute>
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  }
-                />
+                {/* Admin Dashboard is now unprotected as requested */}
+                <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/checkout" element={<CheckoutScreen />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

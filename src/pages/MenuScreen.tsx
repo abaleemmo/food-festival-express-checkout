@@ -228,7 +228,7 @@ const MenuScreen = () => {
   return (
     <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray overflow-hidden">
       {/* Header for Line Title */}
-      <div className="p-4 flex justify-center">
+      <div className="p-4 flex justify-center"> {/* Centered title */}
         <h1 className="text-5xl md:text-6xl font-bold text-center text-festival-dark-red">
           {lineSide} Line
         </h1>

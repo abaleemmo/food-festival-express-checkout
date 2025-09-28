@@ -25,13 +25,12 @@ const AdminDashboard = () => {
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [editingItem, setEditingItem] = useState<FoodItem | null>(null);
-  const [newItem, setNewItem] = useState<Omit<FoodItem, 'id' | 'created_at' | 'updated_at'>>({
+  const [newItem, setNewItem] = useState<Omit<FoodItem, 'id' | 'created_at' | 'updated_at' | 'lineSide'>>({
     name: '',
     price: 0,
     description: '',
     image: '',
     dietaryTags: [],
-    lineSide: 'Left',
     origin: '',
   });
 
@@ -118,13 +117,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleSelectChange = (value: string) => {
-    if (editingItem) {
-      setEditingItem({ ...editingItem, lineSide: value as LineSide });
-    } else {
-      setNewItem({ ...newItem, lineSide: value as LineSide });
-    }
-  };
+  // Removed handleSelectChange as lineSide is no longer selected in the form
 
   const handleDietaryTagChange = (tag: DietaryTag, checked: boolean) => {
     if (editingItem) {
@@ -142,13 +135,14 @@ const AdminDashboard = () => {
 
   const handleAddOrUpdateItem = async () => {
     if (editingItem) {
+      // For editing, we update the specific item
       const { error } = await supabase.from('food_items').update({
         name: editingItem.name,
         price: editingItem.price,
         description: editingItem.description,
         image: editingItem.image,
         dietaryTags: editingItem.dietaryTags,
-        lineSide: editingItem.lineSide,
+        // lineSide is not updated via edit form
         origin: editingItem.origin,
       }).eq('id', editingItem.id);
       if (error) {
@@ -159,26 +153,29 @@ const AdminDashboard = () => {
         fetchFoodItems();
       }
     } else {
-      const { error } = await supabase.from('food_items').insert({
+      // For new items, insert into both 'Left' and 'Right' lines
+      const baseItem = {
         name: newItem.name,
         price: newItem.price,
         description: newItem.description,
         image: newItem.image,
         dietaryTags: newItem.dietaryTags,
-        lineSide: newItem.lineSide,
         origin: newItem.origin,
-      });
-      if (error) {
-        showError('Error adding food item: ' + error.message);
+      };
+
+      const { error: errorLeft } = await supabase.from('food_items').insert({ ...baseItem, lineSide: 'Left' });
+      const { error: errorRight } = await supabase.from('food_items').insert({ ...baseItem, lineSide: 'Right' });
+
+      if (errorLeft || errorRight) {
+        showError('Error adding food item to both lines: ' + (errorLeft?.message || errorRight?.message));
       } else {
-        showSuccess('Food item added successfully!');
+        showSuccess('Food item added to both lines successfully!');
         setNewItem({
           name: '',
           price: 0,
           description: '',
           image: '',
           dietaryTags: [],
-          lineSide: 'Left',
           origin: '',
         });
         fetchFoodItems();
@@ -430,18 +427,7 @@ const AdminDashboard = () => {
                 className="mt-1 bg-festival-cream border-festival-forest-green"
               />
             </div>
-            <div className="md:col-span-2">
-              <Label htmlFor="lineSide" className="text-festival-charcoal-gray">Line Side</Label>
-              <Select onValueChange={handleSelectChange} value={editingItem?.lineSide || newItem.lineSide}>
-                <SelectTrigger className="mt-1 bg-festival-cream border-festival-forest-green">
-                  <SelectValue placeholder="Select Line Side" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Left">Left</SelectItem>
-                  <SelectItem value="Right">Right</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Removed Line Side selection from the form */}
             <div className="flex flex-col space-y-2 md:col-span-2">
               <Label className="text-festival-charcoal-gray">Dietary Tags</Label>
               <div className="flex flex-wrap gap-4">
@@ -462,7 +448,7 @@ const AdminDashboard = () => {
             </div>
           </div>
           <Button onClick={handleAddOrUpdateItem} className="mt-6 w-full bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white">
-            {editingItem ? <><Edit className="mr-2 h-4 w-4" /> Update Item</> : <><PlusCircle className="mr-2 h-4 w-4" /> Add Item</>}
+            {editingItem ? <><Edit className="mr-2 h-4 w-4" /> Update Item</> : <><PlusCircle className="mr-2 h-4 w-4" /> Add Item to Both Lines</>}
           </Button>
           {editingItem && (
             <Button variant="outline" onClick={() => setEditingItem(null)} className="mt-2 w-full border-festival-dark-red text-festival-dark-red hover:bg-festival-dark-red/10">

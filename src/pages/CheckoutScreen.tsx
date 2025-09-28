@@ -21,6 +21,7 @@ const CheckoutScreen = () => {
   };
 
   const downloadReceipt = () => {
+    console.log("Attempting to open receipt in new tab..."); // Diagnostic log
     const doc = new jsPDF();
     const startY = 20;
     let currentY = startY;
@@ -64,8 +65,9 @@ const CheckoutScreen = () => {
     doc.setFontSize(18);
     doc.text("Thank you for your purchase!", 105, currentY, { align: 'center' });
 
-    doc.save('receipt.pdf');
-    showSuccess('Receipt downloaded successfully!');
+    // Changed from doc.save() to doc.output('dataurlnewwindow') for better mobile compatibility
+    doc.output('dataurlnewwindow');
+    showSuccess('Receipt opened in a new tab!'); // Updated success message
   };
 
   return (

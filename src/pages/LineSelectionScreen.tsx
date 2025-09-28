@@ -1,13 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-// Removed useFood and LineSide imports
+import { useFood, LineSide } from '@/context/FoodContext'; // Re-added useFood and LineSide imports
 
 const LineSelectionScreen = () => {
   const navigate = useNavigate();
-  // Removed setLineSide usage
+  const { setLineSide } = useFood(); // Re-added setLineSide usage
 
-  const handleContinue = () => {
+  const handleLineSelect = (side: LineSide) => {
+    setLineSide(side);
     navigate('/dietary-restrictions');
   };
 
@@ -17,14 +18,20 @@ const LineSelectionScreen = () => {
         Welcome to Express Checkout!
       </h1>
       <p className="text-xl md:text-2xl mb-12 text-center">
-        Click below to continue to dietary restrictions.
+        Please select your line to begin.
       </p>
       <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-8 w-full max-w-md">
         <Button
           className="w-full py-6 text-2xl bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold shadow-lg"
-          onClick={handleContinue}
+          onClick={() => handleLineSelect("Left")}
         >
-          Continue
+          Left Line
+        </Button>
+        <Button
+          className="w-full py-6 text-2xl bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white font-semibold shadow-lg"
+          onClick={() => handleLineSelect("Right")}
+        >
+          Right Line
         </Button>
       </div>
     </div>

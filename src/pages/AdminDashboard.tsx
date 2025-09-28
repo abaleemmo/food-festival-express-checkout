@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { FoodItem, DietaryTag } from '@/context/FoodContext'; // Removed LineSide import
+import { FoodItem, DietaryTag, LineSide } from '@/context/FoodContext'; // Re-added LineSide import
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,7 +31,7 @@ const AdminDashboard = () => {
     description: '',
     image: '',
     dietaryTags: [],
-    // lineSide removed
+    lineSide: 'Left', // Re-added lineSide
   });
 
   useEffect(() => {
@@ -66,7 +66,13 @@ const AdminDashboard = () => {
     }
   };
 
-  // handleSelectChange removed as lineSide select is gone
+  const handleSelectChange = (value: string) => { // Re-added handleSelectChange
+    if (editingItem) {
+      setEditingItem({ ...editingItem, lineSide: value as LineSide });
+    } else {
+      setNewItem({ ...newItem, lineSide: value as LineSide });
+    }
+  };
 
   const handleDietaryTagChange = (tag: DietaryTag, checked: boolean) => {
     if (editingItem) {
@@ -90,7 +96,7 @@ const AdminDashboard = () => {
         description: editingItem.description,
         image: editingItem.image,
         dietaryTags: editingItem.dietaryTags,
-        // lineSide removed from update
+        lineSide: editingItem.lineSide, // Re-added lineSide to update
       }).eq('id', editingItem.id);
       if (error) {
         showError('Error updating food item: ' + error.message);
@@ -106,7 +112,7 @@ const AdminDashboard = () => {
         description: newItem.description,
         image: newItem.image,
         dietaryTags: newItem.dietaryTags,
-        // lineSide removed from insert
+        lineSide: newItem.lineSide, // Re-added lineSide to insert
       });
       if (error) {
         showError('Error adding food item: ' + error.message);
@@ -118,7 +124,7 @@ const AdminDashboard = () => {
           description: '',
           image: '',
           dietaryTags: [],
-          // lineSide removed
+          lineSide: 'Left', // Re-added lineSide
         });
         fetchFoodItems();
       }
@@ -137,14 +143,15 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleReorder = async (id: string, direction: 'up' | 'down') => {
-    const itemIndex = foodItems.findIndex(item => item.id === id);
+  const handleReorder = async (id: string, direction: 'up' | 'down', currentLineSide: LineSide) => {
+    const itemsInCurrentLine = foodItems.filter(item => item.lineSide === currentLineSide).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    const itemIndex = itemsInCurrentLine.findIndex(item => item.id === id);
     if (itemIndex === -1) return;
 
-    const itemToMove = foodItems[itemIndex];
+    const itemToMove = itemsInCurrentLine[itemIndex];
 
     if (direction === 'up' && itemIndex > 0) {
-      const prevItem = foodItems[itemIndex - 1];
+      const prevItem = itemsInCurrentLine[itemIndex - 1];
       // Swap created_at timestamps to reorder
       const { error: error1 } = await supabase.from('food_items').update({ created_at: prevItem.created_at }).eq('id', itemToMove.id);
       const { error: error2 } = await supabase.from('food_items').update({ created_at: itemToMove.created_at }).eq('id', prevItem.id);
@@ -153,8 +160,8 @@ const AdminDashboard = () => {
       } else {
         fetchFoodItems();
       }
-    } else if (direction === 'down' && itemIndex < foodItems.length - 1) {
-      const nextItem = foodItems[itemIndex + 1];
+    } else if (direction === 'down' && itemIndex < itemsInCurrentLine.length - 1) {
+      const nextItem = itemsInCurrentLine[itemIndex + 1];
       // Swap created_at timestamps to reorder
       const { error: error1 } = await supabase.from('food_items').update({ created_at: nextItem.created_at }).eq('id', itemToMove.id);
       const { error: error2 } = await supabase.from('food_items').update({ created_at: itemToMove.created_at }).eq('id', nextItem.id);
@@ -202,6 +209,45 @@ const AdminDashboard = () => {
 
   const dietaryTags: DietaryTag[] = ["Vegetarian", "Vegan", "Gluten-Free"];
 
+  const leftLineItems = foodItems.filter(item => item.lineSide === 'Left').sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  const rightLineItems = foodItems.filter(item => item.lineSide === 'Right').sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+  const renderFoodItemsTable = (items: FoodItem[], lineSide: LineSide) => (
+    <Table className="bg-festival-white shadow-lg rounded-lg">
+      <TableHeader>
+        <TableRow className="bg-festival-golden-yellow/20">
+          <TableHead className="text-festival-charcoal-gray">Name</TableHead>
+          <TableHead className="text-festival-charcoal-gray">Price</TableHead>
+          <TableHead className="text-festival-charcoal-gray">Tags</TableHead>
+          <TableHead className="text-right text-festival-charcoal-gray">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {items.map((item, index, arr) => (
+          <TableRow key={item.id} className="hover:bg-festival-cream/50">
+            <TableCell className="font-medium">{item.name}</TableCell>
+            <TableCell>${item.price.toFixed(2)}</TableCell>
+            <TableCell>{item.dietaryTags.join(', ')}</TableCell>
+            <TableCell className="text-right flex justify-end space-x-2">
+              <Button variant="ghost" size="icon" onClick={() => handleReorder(item.id, 'up', lineSide)} disabled={index === 0}>
+                <ChevronUp className="h-4 w-4 text-festival-forest-green" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => handleReorder(item.id, 'down', lineSide)} disabled={index === arr.length - 1}>
+                <ChevronDown className="h-4 w-4 text-festival-forest-green" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setEditingItem(item)}>
+                <Edit className="h-4 w-4 text-festival-deep-orange" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(item.id)}>
+                <Trash2 className="h-4 w-4 text-festival-dark-red" />
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+
   return (
     <div className="min-h-screen p-8 bg-festival-cream text-festival-charcoal-gray">
       <h1 className="text-4xl font-bold mb-8 text-festival-dark-red">Admin Dashboard</h1>
@@ -218,7 +264,7 @@ const AdminDashboard = () => {
         </Card>
         <Card className="bg-festival-white shadow-lg">
           <CardHeader>
-            <CardTitle className="text-festival-dark-red">Total Revenue Processed</CardTitle> {/* Changed text here */}
+            <CardTitle className="text-festival-dark-red">Total Revenue Processed</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-4xl font-bold text-festival-deep-orange">${totalDollarAmountProcessed.toFixed(2)}</p>
@@ -292,7 +338,19 @@ const AdminDashboard = () => {
                 className="mt-1 bg-festival-cream border-festival-forest-green"
               />
             </div>
-            {/* Line Side selection removed */}
+            {/* Re-added Line Side selection */}
+            <div className="md:col-span-2">
+              <Label htmlFor="lineSide" className="text-festival-charcoal-gray">Line Side</Label>
+              <Select onValueChange={handleSelectChange} value={editingItem?.lineSide || newItem.lineSide}>
+                <SelectTrigger className="mt-1 bg-festival-cream border-festival-forest-green">
+                  <SelectValue placeholder="Select Line Side" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Left">Left</SelectItem>
+                  <SelectItem value="Right">Right</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex flex-col space-y-2 md:col-span-2">
               <Label className="text-festival-charcoal-gray">Dietary Tags</Label>
               <div className="flex flex-wrap gap-4">
@@ -321,42 +379,16 @@ const AdminDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* All Food Items List */}
+      {/* Left Line Food Items List */}
+      <div className="mb-12">
+        <h3 className="text-2xl font-semibold mb-4 text-festival-dark-red">Left Line Food Items</h3>
+        {renderFoodItemsTable(leftLineItems, 'Left')}
+      </div>
+
+      {/* Right Line Food Items List */}
       <div>
-        <h3 className="text-2xl font-semibold mb-4 text-festival-dark-red">All Food Items</h3>
-        <Table className="bg-festival-white shadow-lg rounded-lg">
-          <TableHeader>
-            <TableRow className="bg-festival-golden-yellow/20">
-              <TableHead className="text-festival-charcoal-gray">Name</TableHead>
-              <TableHead className="text-festival-charcoal-gray">Price</TableHead>
-              <TableHead className="text-festival-charcoal-gray">Tags</TableHead>
-              <TableHead className="text-right text-festival-charcoal-gray">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {foodItems.map((item, index, arr) => (
-              <TableRow key={item.id} className="hover:bg-festival-cream/50">
-                <TableCell className="font-medium">{item.name}</TableCell>
-                <TableCell>${item.price.toFixed(2)}</TableCell>
-                <TableCell>{item.dietaryTags.join(', ')}</TableCell>
-                <TableCell className="text-right flex justify-end space-x-2">
-                  <Button variant="ghost" size="icon" onClick={() => handleReorder(item.id, 'up')} disabled={index === 0}>
-                    <ChevronUp className="h-4 w-4 text-festival-forest-green" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleReorder(item.id, 'down')} disabled={index === arr.length - 1}>
-                    <ChevronDown className="h-4 w-4 text-festival-forest-green" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => setEditingItem(item)}>
-                    <Edit className="h-4 w-4 text-festival-deep-orange" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(item.id)}>
-                    <Trash2 className="h-4 w-4 text-festival-dark-red" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <h3 className="text-2xl font-semibold mb-4 text-festival-dark-red">Right Line Food Items</h3>
+        {renderFoodItemsTable(rightLineItems, 'Right')}
       </div>
     </div>
   );

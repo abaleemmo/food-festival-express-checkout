@@ -18,7 +18,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
+      <Sonner position="top-center" /> {/* Changed toast position to top-center */}
       <BrowserRouter>
         <FoodProvider>
           <RedirectOnReload> {/* Wrap routes with the redirect component */}

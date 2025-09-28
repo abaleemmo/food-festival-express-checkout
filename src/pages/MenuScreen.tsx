@@ -12,7 +12,7 @@ import { ShoppingCart, Plus, Minus, ChevronLeft, Info, ChevronUp, ChevronDown, T
 import { showSuccess, showError } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-const ITEMS_PER_PAGE = 4; // Still display 4 items at a time, but in a column
+const ITEMS_PER_PAGE = 3; // Changed from 4 to 3
 
 const MenuScreen = () => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ const MenuScreen = () => {
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
   const [isWarningDialogOpen, setIsWarningDialogOpen] = useState(false);
   const [itemToAddAfterWarning, setItemToAddAfterWarning] = useState<FoodItem | null>(null);
-  const [currentPageIndex, setCurrentPageIndex] = useState(0); // Controls which set of 4 items is shown
+  const [currentPageIndex, setCurrentPageIndex] = useState(0); // Controls which set of 3 items is shown
 
   const handleBack = () => {
     navigate(-1);
@@ -213,8 +213,8 @@ const MenuScreen = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray">
-      {/* Header for Back Button */}
-      <div className="p-4 flex justify-start">
+      {/* Header for Back Button and Line Title */}
+      <div className="p-4 flex items-center justify-between lg:justify-start">
         <Button
           variant="default"
           size="lg"
@@ -224,24 +224,23 @@ const MenuScreen = () => {
           <ChevronLeft className="h-5 w-5" />
           <span className="text-lg font-semibold">Back</span>
         </Button>
+        <h1 className="text-4xl md:text-5xl font-bold text-center text-festival-dark-red flex-1 lg:ml-8">
+          {lineSide} Line
+        </h1>
       </div>
 
       {/* Main content area (Menu + Cart) */}
       <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0">
         {/* Menu Content (Arrows + Food Items) */}
         <div className="flex-1 p-4 relative">
-          <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center text-festival-dark-red">
-            {lineSide} Line
-          </h1>
-
           {displayFoodItems.length === 0 ? (
             <p className="text-center text-xl text-festival-charcoal-gray">
               No food items available for your selection.
             </p>
           ) : (
-            <div className="flex flex-row items-start justify-center w-full">
-              {/* Navigation Arrows - in their own column */}
-              <div className="flex flex-col space-y-6 mr-8 mt-16"> {/* Added mt-16 to align with card content */}
+            <div className="relative w-full flex justify-center"> {/* Centering container for items and arrows */}
+              {/* Navigation Arrows - positioned absolutely */}
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col space-y-6 z-10">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -262,10 +261,10 @@ const MenuScreen = () => {
                 </Button>
               </div>
 
-              {/* Food Item Column */}
+              {/* Food Item Column - now takes full width */}
               <div
                 key={currentPageIndex}
-                className="flex flex-col gap-4 w-full max-w-md transition-opacity duration-200 ease-in-out opacity-100"
+                className="flex flex-col gap-4 w-full max-w-md ml-24 transition-opacity duration-200 ease-in-out opacity-100" // Added ml-24 for spacing from arrows
               >
                 {currentItems.map((item) => renderFoodItemCard(item))}
               </div>

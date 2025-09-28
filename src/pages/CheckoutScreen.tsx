@@ -21,7 +21,7 @@ const CheckoutScreen = () => {
   };
 
   const downloadReceipt = () => {
-    console.log("Attempting to open receipt in new tab..."); // Diagnostic log
+    console.log("Attempting to generate and download receipt..."); // Diagnostic log
     const doc = new jsPDF();
     const startY = 20;
     let currentY = startY;
@@ -65,13 +65,19 @@ const CheckoutScreen = () => {
     doc.setFontSize(18);
     doc.text("Thank you for your purchase!", 105, currentY, { align: 'center' });
 
-    // Changed from doc.save() to doc.output('dataurlnewwindow') for better mobile compatibility
-    doc.output('dataurlnewwindow');
-    showSuccess('Receipt opened in a new tab!'); // Updated success message
+    // Generate data URL and trigger download
+    const pdfDataUri = doc.output('datauristring');
+    const link = document.createElement('a');
+    link.href = pdfDataUri;
+    link.download = 'receipt.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showSuccess('Receipt downloaded successfully!');
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-festival-cream text-festival-charcoal-gray">
+    <div className="min-h-screen flex flex-col items-center p-4 bg-festival-cream text-festival-charcoal-gray overflow-y-auto">
       <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6">
         <CardHeader className="text-center">
           <CardTitle className="text-4xl font-bold mb-4 text-festival-dark-red">Thank You!</CardTitle>

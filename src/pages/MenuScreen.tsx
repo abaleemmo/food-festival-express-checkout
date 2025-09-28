@@ -310,7 +310,7 @@ const MenuScreen = () => {
                 )}
               </Button>
             </DrawerTrigger>
-            <DrawerContent className="h-[80vh] bg-festival-cream">
+            <DrawerContent className="h-[80vh] bg-festival-cream overflow-y-auto">
               <DrawerHeader>
                 <DrawerTitle className="text-festival-dark-red">Your Cart</DrawerTitle>
               </DrawerHeader>
@@ -318,7 +318,7 @@ const MenuScreen = () => {
             </DrawerContent>
           </Drawer>
         ) : (
-          <Card className="w-full lg:w-96 mt-8 lg:mt-0 p-4 bg-festival-white shadow-lg rounded-lg flex flex-col">
+          <Card className="w-full lg:w-96 mt-8 lg:mt-0 p-4 bg-festival-white shadow-lg rounded-lg flex flex-col max-h-[calc(100vh-theme(spacing.8))] overflow-y-auto">
             {renderCartContent()}
           </Card>
         )}

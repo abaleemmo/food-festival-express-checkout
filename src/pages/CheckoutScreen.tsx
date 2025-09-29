@@ -21,13 +21,13 @@ const CheckoutScreen = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4 bg-festival-cream text-festival-charcoal-gray overflow-y-auto">
-      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 flex flex-col my-8 overflow-y-auto"> {/* Added overflow-y-auto to Card, adjusted margin */}
+      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 flex flex-col my-8 flex-grow"> {/* Removed overflow-y-auto from Card, added flex-grow */}
         <CardHeader className="text-center flex-shrink-0">
           <CardTitle className="text-4xl font-bold mb-4 text-festival-dark-red">Thank You!</CardTitle>
         </CardHeader>
         <CardContent className="mt-6 flex flex-col flex-grow">
           <h2 className="text-2xl font-semibold mb-4 text-festival-deep-orange flex-shrink-0">Order Summary</h2>
-          <div className="space-y-3 mb-6 flex-grow overflow-y-auto pr-2">
+          <div className="space-y-3 mb-6 flex-grow overflow-y-auto pr-2"> {/* This div handles the scrolling for items */}
             {cart.map((item) => (
               <div key={item.id} className="flex justify-between items-center border-b pb-2 border-festival-cream">
                 <p className="text-lg text-festival-charcoal-gray">{item.name} (x{item.quantity})</p>

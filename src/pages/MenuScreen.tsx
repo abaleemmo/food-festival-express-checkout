@@ -50,16 +50,23 @@ const MenuScreen = () => {
     const totalAmount = cart.reduce((total, item) => total + item.price * item.quantity, 0);
     const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-    const { error } = await supabase.from('transactions').insert({
+    console.log("Attempting to record transaction...");
+    console.log("Total Amount:", totalAmount);
+    console.log("Item Count:", itemCount);
+    console.log("Items Purchased (cart):", cart);
+
+    const { data, error } = await supabase.from('transactions').insert({
       total_amount: totalAmount,
       item_count: itemCount,
       items_purchased: cart,
       user_id: null, // Explicitly set to null for anonymous checkout
-    });
+    }).select(); // Use .select() to get the inserted data back, useful for debugging
 
     if (error) {
+      console.error('Error recording transaction:', error);
       showError('Error recording transaction: ' + error.message);
     } else {
+      console.log('Transaction recorded successfully:', data);
       showSuccess('Transaction recorded successfully!');
     }
 
@@ -175,7 +182,7 @@ const MenuScreen = () => {
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-grow px-4 mb-4"> {/* Removed max-h, relying on flex-grow */}
+          <ScrollArea className="flex-grow px-4 mb-4 max-h-[calc(100vh-20rem)]"> {/* Added max-h for scrollable area */}
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">

@@ -24,7 +24,7 @@ interface Transaction {
 
 const AdminDashboard = () => {
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]); // Keep for detailed view/CSV export
+  const [transactions, setTransactions] = useState<Transaction[]>([]); // Stores all fetched transactions
 
   // Dedicated states for the main counters
   const [totalItemsProcessed, setTotalItemsProcessed] = useState<number>(0);
@@ -49,6 +49,7 @@ const AdminDashboard = () => {
 
   const location = useLocation();
 
+  // Function to fetch food items
   const fetchFoodItems = useCallback(async () => {
     console.log("AdminDashboard: Fetching food items...");
     const { data, error } = await supabase.from('food_items').select('*').order('created_at', { ascending: true });
@@ -73,13 +74,15 @@ const AdminDashboard = () => {
     }
   }, []);
 
+  // Function to process fetched transaction data and update all stats
   const processTransactionData = useCallback((fetchedTransactions: Transaction[]) => {
     console.log("AdminDashboard: Processing transaction data for", fetchedTransactions.length, "transactions.");
     
     // Calculate and set main counters directly
     const calculatedTotalItems = fetchedTransactions.reduce((sum, t) => sum + t.item_count, 0);
     const calculatedTotalRevenue = fetchedTransactions.reduce((sum, t) => sum + t.total_amount, 0);
-    const calculatedUniqueUsers = new Set(fetchedTransactions.map(t => t.user_id)).size;
+    // Filter out null user_ids for unique user count if anonymous checkouts are allowed
+    const calculatedUniqueUsers = new Set(fetchedTransactions.map(t => t.user_id).filter(id => id !== null)).size;
 
     setTotalItemsProcessed(calculatedTotalItems);
     setTotalRevenueProcessed(calculatedTotalRevenue);
@@ -126,6 +129,7 @@ const AdminDashboard = () => {
     setLeastPopularItems(sortedByQuantity.slice(-5).reverse());
   }, []);
 
+  // Function to fetch transactions and then process them
   const fetchTransactions = useCallback(async () => {
     console.log("AdminDashboard: Fetching transactions...");
     const { data, error } = await supabase.from('transactions').select('*');
@@ -135,16 +139,18 @@ const AdminDashboard = () => {
     } else {
       console.log("AdminDashboard: Transactions fetched successfully:", data.length, "transactions.");
       setTransactions(data as Transaction[]); // Update the transactions state for detailed view/CSV
-      processTransactionData(data as Transaction[]); // Process and update counters
+      processTransactionData(data as Transaction[]); // Process and update all counters
     }
   }, [processTransactionData]);
 
+  // Orchestrator function to fetch all necessary data
   const fetchData = useCallback(async () => {
     console.log("AdminDashboard: Calling fetchData...");
     await fetchFoodItems();
     await fetchTransactions();
   }, [fetchFoodItems, fetchTransactions]);
 
+  // Effect hook to fetch data on component mount and navigation changes
   useEffect(() => {
     console.log("AdminDashboard: useEffect triggered by location change or initial mount.");
     fetchData();

@@ -81,6 +81,10 @@ const MenuScreen = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   }, [cart]);
 
+  const totalCartItems = useMemo(() => {
+    return cart.reduce((sum, item) => sum + item.quantity, 0);
+  }, [cart]);
+
   const handleInfoClick = (item: FoodItem) => {
     setSelectedFoodItem(item);
     setIsInfoDialogOpen(true);
@@ -147,17 +151,17 @@ const MenuScreen = () => {
   };
 
   const renderCartContent = () => (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col"> {/* This div ensures the content takes full height */}
       <CardHeader className="pb-4">
         <CardTitle className="text-3xl font-bold text-festival-dark-red flex items-center">
           <ShoppingCart className="h-7 w-7 mr-3" /> Your Cart
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
+      <CardContent className="flex-1 flex flex-col"> {/* This CardContent also takes full height */}
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-1 pr-4 mb-4">
+          <ScrollArea className="flex-1 pr-4 mb-4"> {/* This ScrollArea grows to fill available space */}
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">
@@ -201,9 +205,13 @@ const MenuScreen = () => {
 
         <Separator className="my-4 bg-festival-golden-yellow" />
 
-        <div className="flex justify-between items-center text-2xl font-bold mb-4 text-festival-charcoal-gray">
+        <div className="flex justify-between items-center text-2xl font-bold mb-2 text-festival-charcoal-gray">
           <span>Total:</span>
           <span>${cartTotal.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between items-center text-lg text-festival-charcoal-gray mb-4">
+          <span>Items:</span>
+          <span>{totalCartItems}</span>
         </div>
 
         <Button
@@ -305,7 +313,7 @@ const MenuScreen = () => {
                 <ShoppingCart className="h-6 w-6" />
                 {cart.length > 0 && (
                   <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-festival-deep-orange text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {cart.reduce((sum, item) => sum + item.quantity, 0)}
+                    {totalCartItems}
                   </span>
                 )}
               </Button>

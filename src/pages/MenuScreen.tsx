@@ -12,6 +12,7 @@ import { ShoppingCart, Plus, Minus, ChevronLeft, Info, ChevronUp, ChevronDown, T
 import { showSuccess, showError } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client'; // Import supabase client
 
 const ITEMS_PER_PAGE = 3;
 
@@ -40,11 +41,31 @@ const MenuScreen = () => {
     navigate(-1);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => { // Made async to handle Supabase call
     if (cart.length === 0) {
       showError("Your cart is empty. Please add some items before checking out.");
       return;
     }
+
+    // Record transaction
+    const totalAmount = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+    const { error } = await supabase.from('transactions').insert({
+      total_amount: totalAmount,
+      item_count: itemCount,
+      items_purchased: cart, // Store the cart items as JSONB
+      // user_id will be null as there's no customer login for this flow
+    });
+
+    if (error) {
+      showError('Error recording transaction: ' + error.message);
+      // Optionally, still navigate to checkout even if transaction recording fails
+      // to not block the user, but it's good to inform them.
+    } else {
+      showSuccess('Transaction recorded successfully!');
+    }
+
     navigate('/checkout');
   };
 
@@ -52,9 +73,6 @@ const MenuScreen = () => {
     const itemsForLine = foodItems.filter((item) => item.lineSide === lineSide);
 
     return itemsForLine.map((item) => {
-      // An item is restricted (should be greyed out) if:
-      // 1. Dietary restrictions are selected AND
-      // 2. The item does NOT satisfy ALL of the selected dietary restrictions.
       const isRestricted = dietaryRestrictions.length > 0 &&
                            !dietaryRestrictions.every(selectedTag => item.dietaryTags.includes(selectedTag));
       return { ...item, isDisabled: isRestricted };
@@ -63,7 +81,6 @@ const MenuScreen = () => {
 
   const totalPages = Math.ceil(displayFoodItems.length / ITEMS_PER_PAGE);
 
-  // Effect to set initial page to the last one once totalPages is known
   useEffect(() => {
     if (totalPages > 0) {
       setCurrentPageIndex(totalPages - 1);
@@ -91,7 +108,7 @@ const MenuScreen = () => {
   };
 
   const handlePageNav = (direction: 'up' | 'down') => {
-    setAnimationDirection(direction); // Set animation direction
+    setAnimationDirection(direction);
     if (direction === 'up') {
       setCurrentPageIndex((prev) => Math.max(0, prev - 1));
     } else {
@@ -101,8 +118,8 @@ const MenuScreen = () => {
 
   const handleAddItem = (item: FoodItem & { isDisabled: boolean }) => {
     if (item.isDisabled) {
-      setItemToAddAfterWarning(item); // Set the item that triggered the warning
-      setIsWarningDialogOpen(true);   // Open the warning dialog
+      setItemToAddAfterWarning(item);
+      setIsWarningDialogOpen(true);
     } else {
       addToCart(item);
       showSuccess(`${item.name} added to cart!`);
@@ -151,17 +168,17 @@ const MenuScreen = () => {
   };
 
   const renderCartContent = () => (
-    <div className="flex-1 flex flex-col"> {/* This div ensures the content takes full height */}
-      <CardHeader className="pb-4">
+    <div className="flex flex-col h-full"> {/* Ensure this takes full height of its parent */}
+      <CardHeader className="pb-4 flex-shrink-0">
         <CardTitle className="text-3xl font-bold text-festival-dark-red flex items-center">
           <ShoppingCart className="h-7 w-7 mr-3" /> Your Cart
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col"> {/* This CardContent also takes full height */}
+      <CardContent className="flex-1 flex flex-col p-0"> {/* Removed padding, added flex-col */}
         {cart.length === 0 ? (
-          <p className="text-center text-lg text-festival-charcoal-gray mt-4">Your cart is empty.</p>
+          <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-1 pr-4 mb-4"> {/* This ScrollArea grows to fill available space */}
+          <ScrollArea className="flex-grow px-4 mb-4"> {/* This ScrollArea grows to fill available space */}
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">
@@ -203,32 +220,34 @@ const MenuScreen = () => {
           </ScrollArea>
         )}
 
-        <Separator className="my-4 bg-festival-golden-yellow" />
+        <div className="flex-shrink-0 px-4 pt-4"> {/* Fixed bottom section */}
+          <Separator className="my-4 bg-festival-golden-yellow" />
 
-        <div className="flex justify-between items-center text-2xl font-bold mb-2 text-festival-charcoal-gray">
-          <span>Total:</span>
-          <span>${cartTotal.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between items-center text-lg text-festival-charcoal-gray mb-4">
-          <span>Items:</span>
-          <span>{totalCartItems}</span>
-        </div>
+          <div className="flex justify-between items-center text-2xl font-bold mb-2 text-festival-charcoal-gray">
+            <span>Total:</span>
+            <span>${cartTotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between items-center text-lg text-festival-charcoal-gray mb-4">
+            <span>Items:</span>
+            <span>{totalCartItems}</span>
+          </div>
 
-        <Button
-          onClick={handleCheckout}
-          className="w-full py-3 text-xl bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white font-semibold shadow-lg mb-2"
-          disabled={cart.length === 0}
-        >
-          Proceed to Checkout
-        </Button>
-        <Button
-          variant="outline"
-          onClick={clearCart}
-          className="w-full py-3 text-lg border-festival-dark-red text-festival-dark-red hover:bg-festival-dark-red/10 font-semibold"
-          disabled={cart.length === 0}
-        >
-          Clear Cart
-        </Button>
+          <Button
+            onClick={handleCheckout}
+            className="w-full py-3 text-xl bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white font-semibold shadow-lg mb-2"
+            disabled={cart.length === 0}
+          >
+            Proceed to Checkout
+          </Button>
+          <Button
+            variant="outline"
+            onClick={clearCart}
+            className="w-full py-3 text-lg border-festival-dark-red text-festival-dark-red hover:bg-festival-dark-red/10 font-semibold"
+            disabled={cart.length === 0}
+          >
+            Clear Cart
+          </Button>
+        </div>
       </CardContent>
     </div>
   );
@@ -236,7 +255,7 @@ const MenuScreen = () => {
   return (
     <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray overflow-hidden">
       {/* Header for Line Title */}
-      <div className="p-4 flex justify-center"> {/* Centered title */}
+      <div className="p-4 flex justify-center">
         <h1 className="text-5xl md:text-6xl font-bold text-center text-festival-dark-red">
           {lineSide} Line
         </h1>
@@ -291,12 +310,12 @@ const MenuScreen = () => {
 
               {/* Food Item Column - now takes full width */}
               <div
-                key={currentPageIndex} // Key change triggers remount and animation
+                key={currentPageIndex}
                 className={cn(
                   "flex flex-col gap-4 w-full max-w-md ml-24 transition-opacity duration-200 ease-in-out",
-                  animationDirection === 'up' && currentPageIndex !== totalPages -1 ? "animate-slide-in-down" : "", // Slide down when moving up pages
-                  animationDirection === 'down' && currentPageIndex !== 0 ? "animate-slide-in-up" : "", // Slide up when moving down pages
-                  animationDirection === null ? "opacity-100" : "" // Initial state or after animation
+                  animationDirection === 'up' && currentPageIndex !== totalPages -1 ? "animate-slide-in-down" : "",
+                  animationDirection === 'down' && currentPageIndex !== 0 ? "animate-slide-in-up" : "",
+                  animationDirection === null ? "opacity-100" : ""
                 )}
               >
                 {currentItems.map((item) => renderFoodItemCard(item))}
@@ -318,7 +337,7 @@ const MenuScreen = () => {
                 )}
               </Button>
             </DrawerTrigger>
-            <DrawerContent className="h-[80vh] bg-festival-cream overflow-y-auto">
+            <DrawerContent className="h-[80vh] bg-festival-cream"> {/* Removed overflow-y-auto from DrawerContent */}
               <DrawerHeader>
                 <DrawerTitle className="text-festival-dark-red">Your Cart</DrawerTitle>
               </DrawerHeader>
@@ -326,7 +345,7 @@ const MenuScreen = () => {
             </DrawerContent>
           </Drawer>
         ) : (
-          <Card className="w-full lg:w-96 mt-8 lg:mt-0 p-4 bg-festival-white shadow-lg rounded-lg flex flex-col max-h-[calc(100vh-theme(spacing.8))] overflow-y-auto">
+          <Card className="w-full lg:w-96 mt-8 lg:mt-0 p-4 bg-festival-white shadow-lg rounded-lg flex flex-col max-h-[calc(100vh-theme(spacing.8))]"> {/* Removed overflow-y-auto from Card */}
             {renderCartContent()}
           </Card>
         )}
@@ -374,7 +393,7 @@ const MenuScreen = () => {
               This item does not meet your selected dietary restrictions. Are you sure you want to add it to your cart?
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-center space-x-2"> {/* Changed justify-end to justify-center */}
+          <div className="flex justify-center space-x-2">
             <Button variant="outline" onClick={() => setIsWarningDialogOpen(false)} className="border-festival-dark-red text-festival-dark-red hover:bg-festival-dark-red/10">
               Cancel
             </Button>

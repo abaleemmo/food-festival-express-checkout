@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { FoodItem, DietaryTag, LineSide, CartItem } from '@/context/FoodContext'; // Import CartItem
+import { FoodItem, DietaryTag, LineSide, CartItem } from '@/context/FoodContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,14 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { showSuccess, showError } from '@/utils/toast';
-import { PlusCircle, Edit, Trash2, Download, ChevronUp, ChevronDown } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Download, ChevronUp, ChevronDown, Eraser } from 'lucide-react'; // Added Eraser icon
 
 interface Transaction {
   id: string;
   user_id: string | null;
   total_amount: number;
   item_count: number;
-  items_purchased: CartItem[]; // Explicitly type items_purchased as CartItem[]
+  items_purchased: CartItem[];
   created_at: string;
 }
 
@@ -34,7 +34,6 @@ const AdminDashboard = () => {
     origin: '',
   });
 
-  // New state for aggregated stats
   const [hourlySales, setHourlySales] = useState<Record<string, number>>({});
   const [itemSales, setItemSales] = useState<Record<string, { quantity: number; revenue: number }>>({});
   const [averageTransactionValue, setAverageTransactionValue] = useState<number>(0);
@@ -51,15 +50,14 @@ const AdminDashboard = () => {
     if (error) {
       showError('Error fetching food items: ' + error.message);
     } else {
-      // Map snake_case from DB to camelCase for the interface
       const mappedData: FoodItem[] = data.map((item: any) => ({
         id: item.id,
         name: item.name,
         price: item.price,
         description: item.description,
         image: item.image,
-        dietaryTags: item.dietary_tags || [], // Ensure it's an array, default to empty
-        lineSide: item.line_side, // Map line_side to lineSide
+        dietaryTags: item.dietary_tags || [],
+        lineSide: item.line_side,
         created_at: item.created_at,
         updated_at: item.updated_at,
         origin: item.origin,
@@ -75,12 +73,10 @@ const AdminDashboard = () => {
 
     fetchedTransactions.forEach(t => {
       const transactionDate = new Date(t.created_at);
-      const hour = transactionDate.getHours().toString().padStart(2, '0'); // "08", "09"
+      const hour = transactionDate.getHours().toString().padStart(2, '0');
 
-      // Hourly Sales
       newHourlySales[hour] = (newHourlySales[hour] || 0) + t.total_amount;
 
-      // Item-by-item sales
       if (t.items_purchased && Array.isArray(t.items_purchased)) {
         t.items_purchased.forEach((item: CartItem) => {
           if (!newItemSales[item.name]) {
@@ -93,10 +89,8 @@ const AdminDashboard = () => {
       totalRevenue += t.total_amount;
     });
 
-    // Calculate average transaction value
     const avgTxValue = fetchedTransactions.length > 0 ? totalRevenue / fetchedTransactions.length : 0;
 
-    // Calculate most/least popular items
     const itemSalesArray = Object.entries(newItemSales).map(([name, data]) => ({
       name,
       quantity: data.quantity,
@@ -107,8 +101,8 @@ const AdminDashboard = () => {
     setHourlySales(newHourlySales);
     setItemSales(newItemSales);
     setAverageTransactionValue(avgTxValue);
-    setMostPopularItems(sortedByQuantity.slice(0, 5)); // Top 5
-    setLeastPopularItems(sortedByQuantity.slice(-5).reverse()); // Bottom 5
+    setMostPopularItems(sortedByQuantity.slice(0, 5));
+    setLeastPopularItems(sortedByQuantity.slice(-5).reverse());
   };
 
   const fetchTransactions = async () => {
@@ -117,7 +111,7 @@ const AdminDashboard = () => {
       showError('Error fetching transactions: ' + error.message);
     } else {
       setTransactions(data as Transaction[]);
-      processTransactionData(data as Transaction[]); // Process the fetched data
+      processTransactionData(data as Transaction[]);
     }
   };
 
@@ -165,7 +159,6 @@ const AdminDashboard = () => {
     }
 
     if (editingItem) {
-      // For editing, we update the specific item
       const { error } = await supabase.from('food_items').update({
         name: editingItem.name,
         price: editingItem.price,
@@ -182,7 +175,6 @@ const AdminDashboard = () => {
         fetchFoodItems();
       }
     } else {
-      // For new items, insert into both 'Left' and 'Right' lines
       const baseItem = {
         name: newItem.name,
         price: newItem.price,
@@ -252,6 +244,18 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleClearAllTransactions = async () => {
+    if (window.confirm('Are you sure you want to delete ALL transaction data? This action cannot be undone.')) {
+      const { error } = await supabase.from('transactions').delete().not('id', 'is', null); // Delete all rows
+      if (error) {
+        showError('Error clearing transactions: ' + error.message);
+      } else {
+        showSuccess('All transaction data cleared successfully!');
+        fetchTransactions(); // Re-fetch to update the dashboard
+      }
+    }
+  };
+
   const totalItemsProcessed = transactions.reduce((sum, t) => sum + t.item_count, 0);
   const totalDollarAmountProcessed = transactions.reduce((sum, t) => sum + t.total_amount, 0);
   const uniqueUsers = new Set(transactions.map(t => t.user_id)).size;
@@ -263,7 +267,7 @@ const AdminDashboard = () => {
       t.user_id || 'N/A',
       t.total_amount.toFixed(2),
       t.item_count,
-      JSON.stringify(t.items_purchased.map(item => `${item.name} (x${item.quantity})`)), // More readable items purchased
+      JSON.stringify(t.items_purchased.map(item => `${item.name} (x${item.quantity})`)),
       new Date(t.created_at).toLocaleString(),
     ]);
 
@@ -272,21 +276,18 @@ const AdminDashboard = () => {
       ...rows.map(row => row.join(',')),
     ].join('\n');
 
-    // Add Hourly Sales Summary
     csvContent += '\n\n--- Hourly Sales Summary ---\n';
     csvContent += 'Hour,Total Sales\n';
     Object.entries(hourlySales).sort(([h1], [h2]) => parseInt(h1) - parseInt(h2)).forEach(([hour, sales]) => {
       csvContent += `${hour}:00,$${sales.toFixed(2)}\n`;
     });
 
-    // Add Item-by-Item Sales Summary
     csvContent += '\n\n--- Item-by-Item Sales Summary ---\n';
     csvContent += 'Item Name,Quantity Sold,Total Revenue\n';
     Object.entries(itemSales).forEach(([name, data]) => {
       csvContent += `${name},${data.quantity},$${data.revenue.toFixed(2)}\n`;
     });
 
-    // Add Overall Sales Summary
     csvContent += '\n\n--- Overall Sales Summary ---\n';
     csvContent += `Average Transaction Value,$${averageTransactionValue.toFixed(2)}\n`;
     mostPopularItems.forEach(item => {
@@ -387,9 +388,14 @@ const AdminDashboard = () => {
         </Card>
       </div>
 
-      <Button onClick={exportToCSV} className="mb-8 bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white">
-        <Download className="mr-2 h-4 w-4" /> Export Usage Stats to CSV
-      </Button>
+      <div className="flex flex-wrap gap-4 mb-8">
+        <Button onClick={exportToCSV} className="bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white">
+          <Download className="mr-2 h-4 w-4" /> Export Usage Stats to CSV
+        </Button>
+        <Button onClick={handleClearAllTransactions} className="bg-festival-dark-red hover:bg-festival-dark-red/90 text-festival-white">
+          <Eraser className="mr-2 h-4 w-4" /> Clear All Transactions
+        </Button>
+      </div>
 
       {/* Food Item Management */}
       <h2 className="text-3xl font-bold mb-6 text-festival-dark-red">Food Item Management</h2>

@@ -44,13 +44,13 @@ const AdminDashboard = () => {
   const location = useLocation(); // Initialize useLocation
 
   const fetchData = async () => {
-    console.log("Fetching all data for Admin Dashboard...");
+    console.log("AdminDashboard: Fetching all data...");
     await fetchFoodItems();
     await fetchTransactions();
   };
 
   useEffect(() => {
-    console.log("AdminDashboard useEffect triggered by location change:", location.pathname);
+    console.log("AdminDashboard: useEffect triggered by location change:", location.pathname);
     fetchData();
   }, [location.pathname]); // Re-fetch when location changes (e.g., navigating back to dashboard)
 
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
   };
 
   const processTransactionData = (fetchedTransactions: Transaction[]) => {
-    console.log("Processing transaction data:", fetchedTransactions);
+    console.log("AdminDashboard: Processing transaction data:", fetchedTransactions);
     const newHourlySales: Record<string, number> = {};
     const newItemSales: Record<string, { quantity: number; revenue: number }> = {};
     let totalRevenue = 0;
@@ -116,13 +116,13 @@ const AdminDashboard = () => {
   };
 
   const fetchTransactions = async () => {
-    console.log("Fetching transactions...");
+    console.log("AdminDashboard: Fetching transactions...");
     const { data, error } = await supabase.from('transactions').select('*');
     if (error) {
       showError('Error fetching transactions: ' + error.message);
-      console.error('Error fetching transactions:', error);
+      console.error('AdminDashboard: Error fetching transactions:', error);
     } else {
-      console.log("Transactions fetched:", data);
+      console.log("AdminDashboard: Transactions fetched successfully:", data);
       setTransactions(data as Transaction[]);
       processTransactionData(data as Transaction[]);
     }
@@ -269,6 +269,7 @@ const AdminDashboard = () => {
     }
   };
 
+  // These are derived directly from the transactions state
   const totalItemsProcessed = transactions.reduce((sum, t) => sum + t.item_count, 0);
   const totalDollarAmountProcessed = transactions.reduce((sum, t) => sum + t.total_amount, 0);
   const uniqueUsers = new Set(transactions.map(t => t.user_id)).size;

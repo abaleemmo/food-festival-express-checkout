@@ -175,7 +175,7 @@ const MenuScreen = () => {
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-grow px-4 mb-4"> {/* flex-grow will make it take available space */}
+          <ScrollArea className="flex-grow px-4 mb-4 max-h-[calc(100vh-20rem)]"> {/* Added max-h for scrollable area */}
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">
@@ -268,7 +268,7 @@ const MenuScreen = () => {
       </Button>
 
       {/* Main content area (Menu + Cart) */}
-      <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0 pb-20 lg:pb-4"> {/* Added pb-20 for mobile spacing */}
+      <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0 pb-24 lg:pb-4"> {/* Increased pb for mobile spacing */}
         {/* Menu Content (Arrows + Food Items) */}
         <div className="flex-1 p-4 relative flex justify-center">
           {displayFoodItems.length === 0 ? (

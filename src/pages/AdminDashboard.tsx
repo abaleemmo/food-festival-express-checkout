@@ -297,7 +297,18 @@ const AdminDashboard = () => {
         showError('Error clearing transactions: ' + error.message);
       } else {
         showSuccess('All transaction data cleared successfully!');
-        fetchTransactions(); // Re-fetch to update the dashboard
+        // Immediately reset counters for instant feedback
+        setTotalItemsProcessed(0);
+        setTotalRevenueProcessed(0);
+        setUniqueUsers(0);
+        setHourlySales({});
+        setItemSales({});
+        setAverageTransactionValue(0);
+        setMostPopularItems([]);
+        setLeastPopularItems([]);
+        setTransactions([]); // Also clear the detailed transactions list
+        // Then re-fetch to confirm (should be empty)
+        fetchTransactions(); 
       }
     }
   };

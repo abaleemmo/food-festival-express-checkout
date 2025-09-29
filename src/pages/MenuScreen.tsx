@@ -250,9 +250,9 @@ const MenuScreen = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray"> {/* Removed overflow-hidden */}
+    <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray">
       {/* Header for Line Title */}
-      <div className="p-4 flex justify-center flex-shrink-0"> {/* Added flex-shrink-0 */}
+      <div className="p-4 flex justify-center flex-shrink-0">
         <h1 className="text-5xl md:text-6xl font-bold text-center text-festival-dark-red">
           {lineSide} Line
         </h1>
@@ -270,15 +270,15 @@ const MenuScreen = () => {
       {/* Main content area (Menu + Cart) */}
       <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0">
         {/* Menu Content (Arrows + Food Items) */}
-        <div className="flex-1 p-4 relative flex justify-center"> {/* Added flex justify-center */}
+        <div className="flex-1 p-4 relative">
           {displayFoodItems.length === 0 ? (
             <p className="text-center text-xl text-festival-charcoal-gray">
               No food items available for your selection.
             </p>
           ) : (
-            <div className="relative w-full max-w-md"> {/* Adjusted to max-w-md and relative */}
-              {/* Navigation Arrows - positioned absolutely */}
-              <div className="absolute -left-20 top-1/2 -translate-y-1/2 flex flex-col space-y-6 z-10"> {/* Adjusted left position */}
+            <div className="flex justify-center h-full"> {/* This centers the food item column */}
+              {/* Navigation Arrows - positioned absolutely relative to the parent flex-1 div */}
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col space-y-6 z-10">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -305,11 +305,11 @@ const MenuScreen = () => {
                 </Button>
               </div>
 
-              {/* Food Item Column */}
+              {/* Food Item Column - centered by its parent */}
               <div
                 key={currentPageIndex}
                 className={cn(
-                  "flex flex-col gap-4 w-full transition-opacity duration-200 ease-in-out",
+                  "flex flex-col gap-4 w-full max-w-md transition-opacity duration-200 ease-in-out",
                   animationDirection === 'up' && currentPageIndex !== totalPages -1 ? "animate-slide-in-down" : "",
                   animationDirection === 'down' && currentPageIndex !== 0 ? "animate-slide-in-up" : "",
                   animationDirection === null ? "opacity-100" : ""
@@ -334,7 +334,7 @@ const MenuScreen = () => {
                 )}
               </Button>
             </DrawerTrigger>
-            <DrawerContent className="h-[80vh] bg-festival-cream"> {/* Removed overflow-y-auto from DrawerContent */}
+            <DrawerContent className="h-[80vh] bg-festival-cream overflow-y-auto"> {/* Added overflow-y-auto */}
               <DrawerHeader>
                 <DrawerTitle className="text-festival-dark-red">Your Cart</DrawerTitle>
               </DrawerHeader>
@@ -342,7 +342,7 @@ const MenuScreen = () => {
             </DrawerContent>
           </Drawer>
         ) : (
-          <Card className="w-full lg:w-96 mt-8 lg:mt-0 p-4 bg-festival-white shadow-lg rounded-lg flex flex-col max-h-[calc(100vh-theme(spacing.8))]"> {/* Removed overflow-y-auto from Card */}
+          <Card className="w-full lg:w-96 mt-8 lg:mt-0 p-4 bg-festival-white shadow-lg rounded-lg flex flex-col max-h-[calc(100vh-theme(spacing.8))]">
             {renderCartContent()}
           </Card>
         )}

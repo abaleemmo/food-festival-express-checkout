@@ -21,12 +21,12 @@ const CheckoutScreen = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4 bg-festival-cream text-festival-charcoal-gray overflow-y-auto">
-      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 my-auto">
-        <CardHeader className="text-center">
+      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 flex flex-col flex-grow">
+        <CardHeader className="text-center flex-shrink-0">
           <CardTitle className="text-4xl font-bold mb-4 text-festival-dark-red">Thank You!</CardTitle>
         </CardHeader>
-        <CardContent className="mt-6 flex flex-col">
-          <h2 className="text-2xl font-semibold mb-4 text-festival-deep-orange">Order Summary</h2>
+        <CardContent className="mt-6 flex flex-col flex-grow">
+          <h2 className="text-2xl font-semibold mb-4 text-festival-deep-orange flex-shrink-0">Order Summary</h2>
           <div className="space-y-3 mb-6 flex-grow overflow-y-auto pr-2">
             {cart.map((item) => (
               <div key={item.id} className="flex justify-between items-center border-b pb-2 border-festival-cream">
@@ -35,23 +35,23 @@ const CheckoutScreen = () => {
               </div>
             ))}
           </div>
-          <Separator className="my-4 bg-festival-golden-yellow" />
-          <div className="flex justify-between items-center text-2xl font-bold mb-2 text-festival-charcoal-gray">
+          <Separator className="my-4 bg-festival-golden-yellow flex-shrink-0" />
+          <div className="flex justify-between items-center text-2xl font-bold mb-2 text-festival-charcoal-gray flex-shrink-0">
             <span>Total:</span>
             <span>${cartTotal.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center text-lg text-festival-charcoal-gray mb-4">
+          <div className="flex justify-between items-center text-lg text-festival-charcoal-gray mb-4 flex-shrink-0">
             <span>Items:</span>
             <span>{totalItemCount}</span>
           </div>
 
-          <div className="bg-festival-golden-yellow/20 border-l-4 border-festival-golden-yellow text-festival-charcoal-gray p-4 mb-6 rounded-md text-center">
+          <div className="bg-festival-golden-yellow/20 border-l-4 border-festival-golden-yellow text-festival-charcoal-gray p-4 mb-6 rounded-md text-center flex-shrink-0">
             <p className="text-xl md:text-2xl font-bold text-festival-dark-red">
               Please show this screen to a cashier to complete your order.
             </p>
           </div>
 
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-4 flex-shrink-0">
             <Button
               variant="outline"
               onClick={handleGoHome}

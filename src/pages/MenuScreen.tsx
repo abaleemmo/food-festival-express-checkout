@@ -12,7 +12,7 @@ import { ShoppingCart, Plus, Minus, ChevronLeft, Info, ChevronUp, ChevronDown, T
 import { showSuccess, showError } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client'; // Import supabase client
+import { supabase } from '@/integrations/supabase/client';
 
 const ITEMS_PER_PAGE = 3;
 
@@ -41,27 +41,24 @@ const MenuScreen = () => {
     navigate(-1);
   };
 
-  const handleCheckout = async () => { // Made async to handle Supabase call
+  const handleCheckout = async () => {
     if (cart.length === 0) {
       showError("Your cart is empty. Please add some items before checking out.");
       return;
     }
 
-    // Record transaction
     const totalAmount = cart.reduce((total, item) => total + item.price * item.quantity, 0);
     const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
     const { error } = await supabase.from('transactions').insert({
       total_amount: totalAmount,
       item_count: itemCount,
-      items_purchased: cart, // Store the cart items as JSONB
-      // user_id will be null as there's no customer login for this flow
+      items_purchased: cart,
+      user_id: null, // Explicitly set to null for anonymous checkout
     });
 
     if (error) {
       showError('Error recording transaction: ' + error.message);
-      // Optionally, still navigate to checkout even if transaction recording fails
-      // to not block the user, but it's good to inform them.
     } else {
       showSuccess('Transaction recorded successfully!');
     }
@@ -168,17 +165,17 @@ const MenuScreen = () => {
   };
 
   const renderCartContent = () => (
-    <div className="flex flex-col h-full"> {/* Ensure this takes full height of its parent */}
+    <div className="flex flex-col h-full">
       <CardHeader className="pb-4 flex-shrink-0">
         <CardTitle className="text-3xl font-bold text-festival-dark-red flex items-center">
           <ShoppingCart className="h-7 w-7 mr-3" /> Your Cart
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col p-0"> {/* Removed padding, added flex-col */}
+      <CardContent className="flex-1 flex flex-col p-0">
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-grow px-4 mb-4"> {/* This ScrollArea grows to fill available space */}
+          <ScrollArea className="flex-grow px-4 mb-4">
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">
@@ -220,7 +217,7 @@ const MenuScreen = () => {
           </ScrollArea>
         )}
 
-        <div className="flex-shrink-0 px-4 pt-4"> {/* Fixed bottom section */}
+        <div className="flex-shrink-0 px-4 pt-4">
           <Separator className="my-4 bg-festival-golden-yellow" />
 
           <div className="flex justify-between items-center text-2xl font-bold mb-2 text-festival-charcoal-gray">
@@ -253,9 +250,9 @@ const MenuScreen = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray"> {/* Removed overflow-hidden */}
       {/* Header for Line Title */}
-      <div className="p-4 flex justify-center">
+      <div className="p-4 flex justify-center flex-shrink-0"> {/* Added flex-shrink-0 */}
         <h1 className="text-5xl md:text-6xl font-bold text-center text-festival-dark-red">
           {lineSide} Line
         </h1>
@@ -273,15 +270,15 @@ const MenuScreen = () => {
       {/* Main content area (Menu + Cart) */}
       <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0">
         {/* Menu Content (Arrows + Food Items) */}
-        <div className="flex-1 p-4 relative">
+        <div className="flex-1 p-4 relative flex justify-center"> {/* Added flex justify-center */}
           {displayFoodItems.length === 0 ? (
             <p className="text-center text-xl text-festival-charcoal-gray">
               No food items available for your selection.
             </p>
           ) : (
-            <div className="relative w-full flex justify-center">
+            <div className="relative w-full max-w-md"> {/* Adjusted to max-w-md and relative */}
               {/* Navigation Arrows - positioned absolutely */}
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col space-y-6 z-10">
+              <div className="absolute -left-20 top-1/2 -translate-y-1/2 flex flex-col space-y-6 z-10"> {/* Adjusted left position */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -308,11 +305,11 @@ const MenuScreen = () => {
                 </Button>
               </div>
 
-              {/* Food Item Column - now takes full width */}
+              {/* Food Item Column */}
               <div
                 key={currentPageIndex}
                 className={cn(
-                  "flex flex-col gap-4 w-full max-w-md ml-24 transition-opacity duration-200 ease-in-out",
+                  "flex flex-col gap-4 w-full transition-opacity duration-200 ease-in-out",
                   animationDirection === 'up' && currentPageIndex !== totalPages -1 ? "animate-slide-in-down" : "",
                   animationDirection === 'down' && currentPageIndex !== 0 ? "animate-slide-in-up" : "",
                   animationDirection === null ? "opacity-100" : ""

@@ -44,6 +44,7 @@ const AdminDashboard = () => {
   const location = useLocation(); // Initialize useLocation
 
   useEffect(() => {
+    console.log("AdminDashboard useEffect triggered by location change:", location.pathname);
     fetchFoodItems();
     fetchTransactions();
   }, [location.pathname]); // Re-fetch when location changes (e.g., navigating back to dashboard)
@@ -70,6 +71,7 @@ const AdminDashboard = () => {
   };
 
   const processTransactionData = (fetchedTransactions: Transaction[]) => {
+    console.log("Processing transaction data:", fetchedTransactions);
     const newHourlySales: Record<string, number> = {};
     const newItemSales: Record<string, { quantity: number; revenue: number }> = {};
     let totalRevenue = 0;
@@ -109,10 +111,13 @@ const AdminDashboard = () => {
   };
 
   const fetchTransactions = async () => {
+    console.log("Fetching transactions...");
     const { data, error } = await supabase.from('transactions').select('*');
     if (error) {
       showError('Error fetching transactions: ' + error.message);
+      console.error('Error fetching transactions:', error);
     } else {
+      console.log("Transactions fetched:", data);
       setTransactions(data as Transaction[]);
       processTransactionData(data as Transaction[]);
     }

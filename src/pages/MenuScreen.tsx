@@ -175,7 +175,7 @@ const MenuScreen = () => {
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-grow px-4 mb-4">
+          <ScrollArea className="flex-grow px-4 mb-4 max-h-[calc(100vh-20rem)]"> {/* Added max-h for scrollable area */}
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">
@@ -270,15 +270,15 @@ const MenuScreen = () => {
       {/* Main content area (Menu + Cart) */}
       <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0">
         {/* Menu Content (Arrows + Food Items) */}
-        <div className="flex-1 p-4 relative">
+        <div className="flex-1 p-4 flex justify-center items-center relative"> {/* Added items-center */}
           {displayFoodItems.length === 0 ? (
             <p className="text-center text-xl text-festival-charcoal-gray">
               No food items available for your selection.
             </p>
           ) : (
-            <div className="flex justify-center h-full"> {/* This centers the food item column */}
-              {/* Navigation Arrows - positioned absolutely relative to the parent flex-1 div */}
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col space-y-6 z-10">
+            <div className="flex items-center justify-center w-full"> {/* New container for arrows and food items */}
+              {/* Navigation Arrows */}
+              <div className="flex flex-col space-y-6 mr-8"> {/* Added margin-right for spacing */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -305,7 +305,7 @@ const MenuScreen = () => {
                 </Button>
               </div>
 
-              {/* Food Item Column - centered by its parent */}
+              {/* Food Item Column */}
               <div
                 key={currentPageIndex}
                 className={cn(

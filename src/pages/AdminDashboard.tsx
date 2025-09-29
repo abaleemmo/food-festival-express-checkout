@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { showSuccess, showError } from '@/utils/toast';
 import { PlusCircle, Edit, Trash2, Download, ChevronUp, ChevronDown, Eraser, RefreshCcw } from 'lucide-react';
-import { useLocation } from 'react-router-dom'; // Import useLocation
+import { useLocation } from 'react-router-dom';
 
 interface Transaction {
   id: string;
@@ -24,7 +24,13 @@ interface Transaction {
 
 const AdminDashboard = () => {
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]); // Keep for detailed view/CSV export
+
+  // Dedicated states for the main counters
+  const [totalItemsProcessed, setTotalItemsProcessed] = useState<number>(0);
+  const [totalRevenueProcessed, setTotalRevenueProcessed] = useState<number>(0);
+  const [uniqueUsers, setUniqueUsers] = useState<number>(0);
+
   const [editingItem, setEditingItem] = useState<FoodItem | null>(null);
   const [newItem, setNewItem] = useState<Omit<FoodItem, 'id' | 'created_at' | 'updated_at' | 'lineSide'>>({
     name: '',
@@ -41,23 +47,14 @@ const AdminDashboard = () => {
   const [mostPopularItems, setMostPopularItems] = useState<Array<{ name: string; quantity: number; revenue: number }>>([]);
   const [leastPopularItems, setLeastPopularItems] = useState<Array<{ name: string; quantity: number; revenue: number }>>([]);
 
-  const location = useLocation(); // Initialize useLocation
+  const location = useLocation();
 
-  const fetchData = async () => {
-    console.log("AdminDashboard: Fetching all data...");
-    await fetchFoodItems();
-    await fetchTransactions();
-  };
-
-  useEffect(() => {
-    console.log("AdminDashboard: useEffect triggered by location change:", location.pathname);
-    fetchData();
-  }, [location.pathname, fetchData]); // Re-fetch when location changes (e.g., navigating back to dashboard)
-
-  const fetchFoodItems = async () => {
+  const fetchFoodItems = useCallback(async () => {
+    console.log("AdminDashboard: Fetching food items...");
     const { data, error } = await supabase.from('food_items').select('*').order('created_at', { ascending: true });
     if (error) {
       showError('Error fetching food items: ' + error.message);
+      console.error('AdminDashboard: Error fetching food items:', error);
     } else {
       const mappedData: FoodItem[] = data.map((item: any) => ({
         id: item.id,
@@ -72,14 +69,28 @@ const AdminDashboard = () => {
         origin: item.origin,
       }));
       setFoodItems(mappedData);
+      console.log("AdminDashboard: Food items fetched:", mappedData.length);
     }
-  };
+  }, []);
 
   const processTransactionData = useCallback((fetchedTransactions: Transaction[]) => {
-    console.log("AdminDashboard: Processing transaction data:", fetchedTransactions.length, "transactions");
+    console.log("AdminDashboard: Processing transaction data for", fetchedTransactions.length, "transactions.");
+    
+    // Calculate and set main counters directly
+    const calculatedTotalItems = fetchedTransactions.reduce((sum, t) => sum + t.item_count, 0);
+    const calculatedTotalRevenue = fetchedTransactions.reduce((sum, t) => sum + t.total_amount, 0);
+    const calculatedUniqueUsers = new Set(fetchedTransactions.map(t => t.user_id)).size;
+
+    setTotalItemsProcessed(calculatedTotalItems);
+    setTotalRevenueProcessed(calculatedTotalRevenue);
+    setUniqueUsers(calculatedUniqueUsers);
+
+    console.log(`AdminDashboard: Counters updated - Items: ${calculatedTotalItems}, Revenue: ${calculatedTotalRevenue.toFixed(2)}, Users: ${calculatedUniqueUsers}`);
+
+    // Continue with other stats calculations
     const newHourlySales: Record<string, number> = {};
     const newItemSales: Record<string, { quantity: number; revenue: number }> = {};
-    let totalRevenue = 0;
+    let totalRevenueForOtherStats = 0; 
 
     fetchedTransactions.forEach(t => {
       const transactionDate = new Date(t.created_at);
@@ -96,10 +107,10 @@ const AdminDashboard = () => {
           newItemSales[item.name].revenue += item.price * item.quantity;
         });
       }
-      totalRevenue += t.total_amount;
+      totalRevenueForOtherStats += t.total_amount;
     });
 
-    const avgTxValue = fetchedTransactions.length > 0 ? totalRevenue / fetchedTransactions.length : 0;
+    const avgTxValue = fetchedTransactions.length > 0 ? totalRevenueForOtherStats / fetchedTransactions.length : 0;
 
     const itemSalesArray = Object.entries(newItemSales).map(([name, data]) => ({
       name,
@@ -113,7 +124,6 @@ const AdminDashboard = () => {
     setAverageTransactionValue(avgTxValue);
     setMostPopularItems(sortedByQuantity.slice(0, 5));
     setLeastPopularItems(sortedByQuantity.slice(-5).reverse());
-    console.log("AdminDashboard: Transaction data processed. Total items:", fetchedTransactions.reduce((sum, t) => sum + t.item_count, 0));
   }, []);
 
   const fetchTransactions = useCallback(async () => {
@@ -123,11 +133,22 @@ const AdminDashboard = () => {
       showError('Error fetching transactions: ' + error.message);
       console.error('AdminDashboard: Error fetching transactions:', error);
     } else {
-      console.log("AdminDashboard: Transactions fetched successfully:", data.length);
-      setTransactions(data as Transaction[]);
-      processTransactionData(data as Transaction[]);
+      console.log("AdminDashboard: Transactions fetched successfully:", data.length, "transactions.");
+      setTransactions(data as Transaction[]); // Update the transactions state for detailed view/CSV
+      processTransactionData(data as Transaction[]); // Process and update counters
     }
   }, [processTransactionData]);
+
+  const fetchData = useCallback(async () => {
+    console.log("AdminDashboard: Calling fetchData...");
+    await fetchFoodItems();
+    await fetchTransactions();
+  }, [fetchFoodItems, fetchTransactions]);
+
+  useEffect(() => {
+    console.log("AdminDashboard: useEffect triggered by location change or initial mount.");
+    fetchData();
+  }, [location.pathname, fetchData]); // Re-fetch when location changes (e.g., navigating back to dashboard)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -270,11 +291,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // These are derived directly from the transactions state
-  const totalItemsProcessed = transactions.reduce((sum, t) => sum + t.item_count, 0);
-  const totalDollarAmountProcessed = transactions.reduce((sum, t) => sum + t.total_amount, 0);
-  const uniqueUsers = new Set(transactions.map(t => t.user_id)).size;
-
   const exportToCSV = () => {
     const headers = ['Transaction ID', 'User ID', 'Total Amount', 'Item Count', 'Items Purchased', 'Created At'];
     const rows = transactions.map(t => [
@@ -308,7 +324,7 @@ const AdminDashboard = () => {
     mostPopularItems.forEach(item => {
       csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
     });
-    csvContent += `Least Popular Items:\n`; // Corrected variable name here
+    csvContent += `Least Popular Items:\n`;
     leastPopularItems.forEach(item => {
       csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
     });
@@ -390,7 +406,7 @@ const AdminDashboard = () => {
             <CardTitle className="text-festival-dark-red">Total Revenue Processed</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold text-festival-deep-orange">${totalDollarAmountProcessed.toFixed(2)}</p>
+            <p className="text-4xl font-bold text-festival-deep-orange">${totalRevenueProcessed.toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card className="bg-festival-white shadow-lg">

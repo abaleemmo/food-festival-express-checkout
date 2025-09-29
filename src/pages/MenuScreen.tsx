@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { useFood, FoodItem, CartItem, DietaryTag } from '@/context/FoodContext';
-import { ShoppingCart, Plus, Minus, ChevronLeft, Info, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, ChevronLeft, Info, ChevronUp, ChevronDown, Trash2, RefreshCcw } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -171,11 +171,11 @@ const MenuScreen = () => {
           <ShoppingCart className="h-7 w-7 mr-3" /> Your Cart
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col p-0">
+      <div className="flex-1 flex flex-col"> {/* This div will take remaining space */}
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-grow px-4 mb-4 max-h-[calc(100vh-20rem)]"> {/* Added max-h for scrollable area */}
+          <ScrollArea className="flex-grow px-4 mb-4"> {/* flex-grow will make it take available space */}
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">
@@ -245,7 +245,7 @@ const MenuScreen = () => {
             Clear Cart
           </Button>
         </div>
-      </CardContent>
+      </div>
     </div>
   );
 
@@ -270,15 +270,15 @@ const MenuScreen = () => {
       {/* Main content area (Menu + Cart) */}
       <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0">
         {/* Menu Content (Arrows + Food Items) */}
-        <div className="flex-1 p-4 flex justify-center items-center relative"> {/* Added items-center */}
+        <div className="flex-1 p-4 relative flex justify-center"> {/* Removed items-center, added justify-center */}
           {displayFoodItems.length === 0 ? (
-            <p className="text-center text-xl text-festival-charcoal-gray">
+            <p className="text-center text-xl text-festival-charcoal-gray mt-8"> {/* Added mt-8 for spacing */}
               No food items available for your selection.
             </p>
           ) : (
-            <div className="flex items-center justify-center w-full"> {/* New container for arrows and food items */}
+            <div className="flex items-center w-full max-w-md"> {/* Container for arrows and food items */}
               {/* Navigation Arrows */}
-              <div className="flex flex-col space-y-6 mr-8"> {/* Added margin-right for spacing */}
+              <div className="flex flex-col space-y-6 mr-8 flex-shrink-0"> {/* Added flex-shrink-0 and margin-right */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -309,7 +309,7 @@ const MenuScreen = () => {
               <div
                 key={currentPageIndex}
                 className={cn(
-                  "flex flex-col gap-4 w-full max-w-md transition-opacity duration-200 ease-in-out",
+                  "flex flex-col gap-4 w-full transition-opacity duration-200 ease-in-out",
                   animationDirection === 'up' && currentPageIndex !== totalPages -1 ? "animate-slide-in-down" : "",
                   animationDirection === 'down' && currentPageIndex !== 0 ? "animate-slide-in-up" : "",
                   animationDirection === null ? "opacity-100" : ""
@@ -334,7 +334,7 @@ const MenuScreen = () => {
                 )}
               </Button>
             </DrawerTrigger>
-            <DrawerContent className="h-[80vh] bg-festival-cream overflow-y-auto"> {/* Added overflow-y-auto */}
+            <DrawerContent className="h-[80vh] bg-festival-cream flex flex-col"> {/* Added flex-col */}
               <DrawerHeader>
                 <DrawerTitle className="text-festival-dark-red">Your Cart</DrawerTitle>
               </DrawerHeader>

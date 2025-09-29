@@ -21,7 +21,7 @@ const CheckoutScreen = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4 bg-festival-cream text-festival-charcoal-gray overflow-y-auto">
-      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 flex flex-col my-auto"> {/* Removed flex-grow from Card */}
+      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 flex flex-col">
         <CardHeader className="text-center flex-shrink-0">
           <CardTitle className="text-4xl font-bold mb-4 text-festival-dark-red">Thank You!</CardTitle>
         </CardHeader>

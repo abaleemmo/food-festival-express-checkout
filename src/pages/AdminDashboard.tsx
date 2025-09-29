@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { showSuccess, showError } from '@/utils/toast';
-import { PlusCircle, Edit, Trash2, Download, ChevronUp, ChevronDown, Eraser } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Download, ChevronUp, ChevronDown, Eraser, RefreshCcw } from 'lucide-react';
 import { useLocation } from 'react-router-dom'; // Import useLocation
 
 interface Transaction {
@@ -43,10 +43,14 @@ const AdminDashboard = () => {
 
   const location = useLocation(); // Initialize useLocation
 
+  const fetchData = async () => {
+    await fetchFoodItems();
+    await fetchTransactions();
+  };
+
   useEffect(() => {
     console.log("AdminDashboard useEffect triggered by location change:", location.pathname);
-    fetchFoodItems();
-    fetchTransactions();
+    fetchData();
   }, [location.pathname]); // Re-fetch when location changes (e.g., navigating back to dashboard)
 
   const fetchFoodItems = async () => {
@@ -397,6 +401,9 @@ const AdminDashboard = () => {
       </div>
 
       <div className="flex flex-wrap gap-4 mb-8">
+        <Button onClick={fetchData} className="bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white">
+          <RefreshCcw className="mr-2 h-4 w-4" /> Refresh Data
+        </Button>
         <Button onClick={exportToCSV} className="bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white">
           <Download className="mr-2 h-4 w-4" /> Export Usage Stats to CSV
         </Button>

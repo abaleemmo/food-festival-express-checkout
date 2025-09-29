@@ -171,11 +171,11 @@ const MenuScreen = () => {
           <ShoppingCart className="h-7 w-7 mr-3" /> Your Cart
         </CardTitle>
       </CardHeader>
-      <div className="flex-1 flex flex-col overflow-hidden"> {/* Added overflow-hidden here */}
+      <div className="flex-1 flex flex-col overflow-hidden">
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-grow px-4 mb-4 max-h-[calc(100vh-20rem)]"> {/* Added max-h for scrollable area */}
+          <ScrollArea className="flex-grow px-4 mb-4"> {/* Removed max-h, relying on flex-grow */}
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">
@@ -268,7 +268,7 @@ const MenuScreen = () => {
       </Button>
 
       {/* Main content area (Menu + Cart) */}
-      <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0 pb-24 lg:pb-4"> {/* Increased pb for mobile spacing */}
+      <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0 pb-32 lg:pb-4"> {/* Increased pb to pb-32 for mobile spacing */}
         {/* Menu Content (Arrows + Food Items) */}
         <div className="flex-1 p-4 relative flex justify-center">
           {displayFoodItems.length === 0 ? (

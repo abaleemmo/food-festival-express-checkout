@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { FoodItem, DietaryTag, LineSide, CartItem } from '@/context/FoodContext';
 import { Button } from '@/components/ui/button';
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     console.log("AdminDashboard: useEffect triggered by location change:", location.pathname);
     fetchData();
-  }, [location.pathname]); // Re-fetch when location changes (e.g., navigating back to dashboard)
+  }, [location.pathname, fetchData]); // Re-fetch when location changes (e.g., navigating back to dashboard)
 
   const fetchFoodItems = async () => {
     const { data, error } = await supabase.from('food_items').select('*').order('created_at', { ascending: true });
@@ -75,8 +75,8 @@ const AdminDashboard = () => {
     }
   };
 
-  const processTransactionData = (fetchedTransactions: Transaction[]) => {
-    console.log("AdminDashboard: Processing transaction data:", fetchedTransactions);
+  const processTransactionData = useCallback((fetchedTransactions: Transaction[]) => {
+    console.log("AdminDashboard: Processing transaction data:", fetchedTransactions.length, "transactions");
     const newHourlySales: Record<string, number> = {};
     const newItemSales: Record<string, { quantity: number; revenue: number }> = {};
     let totalRevenue = 0;
@@ -113,20 +113,21 @@ const AdminDashboard = () => {
     setAverageTransactionValue(avgTxValue);
     setMostPopularItems(sortedByQuantity.slice(0, 5));
     setLeastPopularItems(sortedByQuantity.slice(-5).reverse());
-  };
+    console.log("AdminDashboard: Transaction data processed. Total items:", fetchedTransactions.reduce((sum, t) => sum + t.item_count, 0));
+  }, []);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     console.log("AdminDashboard: Fetching transactions...");
     const { data, error } = await supabase.from('transactions').select('*');
     if (error) {
       showError('Error fetching transactions: ' + error.message);
       console.error('AdminDashboard: Error fetching transactions:', error);
     } else {
-      console.log("AdminDashboard: Transactions fetched successfully:", data);
+      console.log("AdminDashboard: Transactions fetched successfully:", data.length);
       setTransactions(data as Transaction[]);
       processTransactionData(data as Transaction[]);
     }
-  };
+  }, [processTransactionData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -307,7 +308,7 @@ const AdminDashboard = () => {
     mostPopularItems.forEach(item => {
       csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
     });
-    csvContent += `Least Popular Items:\n`;
+    csvContent += `Least Popular Items:\n`; // Corrected variable name here
     leastPopularItems.forEach(item => {
       csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
     });

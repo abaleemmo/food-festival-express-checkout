@@ -44,6 +44,7 @@ const AdminDashboard = () => {
   const location = useLocation(); // Initialize useLocation
 
   const fetchData = async () => {
+    console.log("Fetching all data for Admin Dashboard...");
     await fetchFoodItems();
     await fetchTransactions();
   };

@@ -171,7 +171,7 @@ const MenuScreen = () => {
           <ShoppingCart className="h-7 w-7 mr-3" /> Your Cart
         </CardTitle>
       </CardHeader>
-      <div className="flex-1 flex flex-col"> {/* This div will take remaining space */}
+      <div className="flex-1 flex flex-col overflow-hidden"> {/* Added overflow-hidden here */}
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
@@ -268,17 +268,17 @@ const MenuScreen = () => {
       </Button>
 
       {/* Main content area (Menu + Cart) */}
-      <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0">
+      <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0 pb-20 lg:pb-4"> {/* Added pb-20 for mobile spacing */}
         {/* Menu Content (Arrows + Food Items) */}
-        <div className="flex-1 p-4 relative flex justify-center"> {/* Removed items-center, added justify-center */}
+        <div className="flex-1 p-4 relative flex justify-center">
           {displayFoodItems.length === 0 ? (
-            <p className="text-center text-xl text-festival-charcoal-gray mt-8"> {/* Added mt-8 for spacing */}
+            <p className="text-center text-xl text-festival-charcoal-gray mt-8">
               No food items available for your selection.
             </p>
           ) : (
-            <div className="flex items-center w-full max-w-md"> {/* Container for arrows and food items */}
+            <div className="flex items-center w-full max-w-md">
               {/* Navigation Arrows */}
-              <div className="flex flex-col space-y-6 mr-8 flex-shrink-0"> {/* Added flex-shrink-0 and margin-right */}
+              <div className="flex flex-col space-y-6 mr-8 flex-shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -286,7 +286,7 @@ const MenuScreen = () => {
                   disabled={currentPageIndex === 0}
                   className={cn(
                     "h-14 w-14 rounded-md shadow-md text-festival-charcoal-gray",
-                    currentPageIndex === 0 ? "bg-gray-300" : "bg-festival-cream hover:bg-festival-cream/80"
+                    currentPageIndex === 0 ? "bg-gray-300" : "bg-festival-golden-yellow hover:bg-festival-golden-yellow/80"
                   )}
                 >
                   <ChevronUp className="h-10 w-10" />
@@ -298,7 +298,7 @@ const MenuScreen = () => {
                   disabled={currentPageIndex === totalPages - 1}
                   className={cn(
                     "h-14 w-14 rounded-md shadow-md text-festival-charcoal-gray",
-                    currentPageIndex === totalPages - 1 ? "bg-gray-300" : "bg-festival-golden-yellow hover:bg-festival-golden-yellow/80"
+                    currentPageIndex === totalPages - 1 ? "bg-gray-300" : "bg-festival-cream hover:bg-festival-cream/80"
                   )}
                 >
                   <ChevronDown className="h-10 w-10" />
@@ -334,7 +334,7 @@ const MenuScreen = () => {
                 )}
               </Button>
             </DrawerTrigger>
-            <DrawerContent className="h-[80vh] bg-festival-cream flex flex-col"> {/* Added flex-col */}
+            <DrawerContent className="h-[80vh] bg-festival-cream flex flex-col">
               <DrawerHeader>
                 <DrawerTitle className="text-festival-dark-red">Your Cart</DrawerTitle>
               </DrawerHeader>

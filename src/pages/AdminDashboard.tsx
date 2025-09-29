@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { showSuccess, showError } from '@/utils/toast';
-import { PlusCircle, Edit, Trash2, Download, ChevronUp, ChevronDown, Eraser } from 'lucide-react'; // Added Eraser icon
+import { PlusCircle, Edit, Trash2, Download, ChevronUp, ChevronDown, Eraser } from 'lucide-react';
+import { useLocation } from 'react-router-dom'; // Import useLocation
 
 interface Transaction {
   id: string;
@@ -40,10 +41,12 @@ const AdminDashboard = () => {
   const [mostPopularItems, setMostPopularItems] = useState<Array<{ name: string; quantity: number; revenue: number }>>([]);
   const [leastPopularItems, setLeastPopularItems] = useState<Array<{ name: string; quantity: number; revenue: number }>>([]);
 
+  const location = useLocation(); // Initialize useLocation
+
   useEffect(() => {
     fetchFoodItems();
     fetchTransactions();
-  }, []);
+  }, [location.pathname]); // Re-fetch when location changes (e.g., navigating back to dashboard)
 
   const fetchFoodItems = async () => {
     const { data, error } = await supabase.from('food_items').select('*').order('created_at', { ascending: true });

@@ -76,7 +76,8 @@ const AdminDashboard = () => {
 
   // Function to process fetched transaction data and update all stats
   const processTransactionData = useCallback((fetchedTransactions: Transaction[]) => {
-    console.log("AdminDashboard: Processing transaction data for", fetchedTransactions.length, "transactions.");
+    console.log("--- AdminDashboard: Processing Transaction Data ---");
+    console.log("Received transactions for processing:", JSON.stringify(fetchedTransactions, null, 2));
     
     // Calculate and set main counters directly
     const calculatedTotalItems = fetchedTransactions.reduce((sum, t) => sum + t.item_count, 0);
@@ -127,17 +128,20 @@ const AdminDashboard = () => {
     setAverageTransactionValue(avgTxValue);
     setMostPopularItems(sortedByQuantity.slice(0, 5));
     setLeastPopularItems(sortedByQuantity.slice(-5).reverse());
+    console.log("--- AdminDashboard: Transaction Data Processing COMPLETE ---");
   }, []);
 
   // Function to fetch transactions and then process them
   const fetchTransactions = useCallback(async () => {
-    console.log("AdminDashboard: Fetching transactions...");
+    console.log("--- AdminDashboard: Initiating Transaction Fetch ---");
     const { data, error } = await supabase.from('transactions').select('*');
     if (error) {
+      console.error('--- AdminDashboard: Transaction Fetch FAILED ---');
+      console.error('Supabase Error:', error);
       showError('Error fetching transactions: ' + error.message);
-      console.error('AdminDashboard: Error fetching transactions:', error);
     } else {
-      console.log("AdminDashboard: Transactions fetched successfully:", data.length, "transactions.");
+      console.log("--- AdminDashboard: Transaction Fetch SUCCESS ---");
+      console.log("Raw transactions fetched:", JSON.stringify(data, null, 2));
       setTransactions(data as Transaction[]); // Update the transactions state for detailed view/CSV
       processTransactionData(data as Transaction[]); // Process and update all counters
     }
@@ -145,14 +149,15 @@ const AdminDashboard = () => {
 
   // Orchestrator function to fetch all necessary data
   const fetchData = useCallback(async () => {
-    console.log("AdminDashboard: Calling fetchData...");
+    console.log("AdminDashboard: Calling fetchData (orchestrator)...");
     await fetchFoodItems();
     await fetchTransactions();
+    console.log("AdminDashboard: fetchData (orchestrator) complete.");
   }, [fetchFoodItems, fetchTransactions]);
 
   // Effect hook to fetch data on component mount and navigation changes
   useEffect(() => {
-    console.log("AdminDashboard: useEffect triggered by location change or initial mount.");
+    console.log("AdminDashboard: useEffect triggered by location change or initial mount. Calling fetchData.");
     fetchData();
   }, [location.pathname, fetchData]); // Re-fetch when location changes (e.g., navigating back to dashboard)
 

@@ -50,23 +50,25 @@ const MenuScreen = () => {
     const totalAmount = cart.reduce((total, item) => total + item.price * item.quantity, 0);
     const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-    console.log("Attempting to record transaction...");
-    console.log("Total Amount:", totalAmount);
-    console.log("Item Count:", itemCount);
-    console.log("Items Purchased (cart):", cart);
+    console.log("--- Initiating Transaction Recording ---");
+    console.log("Cart contents for transaction:", JSON.stringify(cart, null, 2));
+    console.log("Calculated Total Amount:", totalAmount);
+    console.log("Calculated Item Count:", itemCount);
 
     const { data, error } = await supabase.from('transactions').insert({
       total_amount: totalAmount,
       item_count: itemCount,
-      items_purchased: cart,
+      items_purchased: cart, // Supabase should handle JSONB conversion
       user_id: null, // Explicitly set to null for anonymous checkout
     }).select(); // Use .select() to get the inserted data back, useful for debugging
 
     if (error) {
-      console.error('Error recording transaction:', error);
+      console.error('--- Transaction Recording FAILED ---');
+      console.error('Supabase Error:', error);
       showError('Error recording transaction: ' + error.message);
     } else {
-      console.log('Transaction recorded successfully:', data);
+      console.log('--- Transaction Recorded SUCCESSFULLY ---');
+      console.log('Supabase Response Data:', JSON.stringify(data, null, 2));
       showSuccess('Transaction recorded successfully!');
     }
 

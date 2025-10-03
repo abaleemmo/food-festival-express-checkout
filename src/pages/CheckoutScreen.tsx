@@ -20,8 +20,8 @@ const CheckoutScreen = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4 bg-festival-cream text-festival-charcoal-gray overflow-y-auto">
-      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 flex flex-col my-8 flex-grow">
+    <div className="min-h-screen flex flex-col items-center p-4 bg-festival-cream text-festival-charcoal-gray"> {/* Removed overflow-y-auto from here */}
+      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 flex flex-col my-8 flex-grow max-h-[calc(100vh - 6rem)]"> {/* Added max-h to constrain card height */}
         <CardHeader className="text-center flex-shrink-0">
           <CardTitle className="text-4xl font-bold mb-4 text-festival-dark-red">Thank You!</CardTitle>
         </CardHeader>

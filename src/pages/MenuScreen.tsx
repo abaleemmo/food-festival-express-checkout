@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,8 +13,10 @@ import { showSuccess, showError } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import MenuTourDialog from '@/components/MenuTourDialog'; // Import the new tour component
 
 const ITEMS_PER_PAGE = 3;
+const HAS_SEEN_MENU_TOUR_KEY = 'hasSeenMenuTour'; // Key for local storage
 
 const MenuScreen = () => {
   const navigate = useNavigate();
@@ -36,6 +38,20 @@ const MenuScreen = () => {
   const [itemToAddAfterWarning, setItemToAddAfterWarning] = useState<FoodItem | null>(null);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [animationDirection, setAnimationDirection] = useState<'up' | 'down' | null>(null);
+  const [showMenuTour, setShowMenuTour] = useState(false); // State for tour visibility
+
+  // Check local storage on mount to decide if tour should show
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem(HAS_SEEN_MENU_TOUR_KEY);
+    if (!hasSeenTour) {
+      setShowMenuTour(true);
+    }
+  }, []);
+
+  const handleCloseMenuTour = useCallback(() => {
+    setShowMenuTour(false);
+    localStorage.setItem(HAS_SEEN_MENU_TOUR_KEY, 'true');
+  }, []);
 
   const handleBack = () => {
     navigate(-1);
@@ -216,7 +232,7 @@ const MenuScreen = () => {
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-grow px-4 mb-4 min-h-0 h-0"> {/* Added h-0 here */}
+          <ScrollArea className="flex-grow px-4 mb-4 min-h-0 h-0">
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">
@@ -263,6 +279,9 @@ const MenuScreen = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray">
+      {/* Menu Tour Dialog */}
+      <MenuTourDialog isOpen={showMenuTour} onClose={handleCloseMenuTour} />
+
       {/* Header for Line Title */}
       <div className="p-4 flex justify-center flex-shrink-0">
         <h1 className="text-5xl md:text-6xl font-bold text-center text-festival-dark-red">

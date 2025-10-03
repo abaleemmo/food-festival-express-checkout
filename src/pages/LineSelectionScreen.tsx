@@ -34,6 +34,17 @@ const LineSelectionScreen = () => {
           Right Line
         </Button>
       </div>
+      <div className="absolute bottom-4 text-center text-sm text-gray-600">
+        Made by{" "}
+        <a
+          href="https://abaleemmo.github.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-festival-deep-orange hover:underline"
+        >
+          Abdul-Aleem Mohammed
+        </a>
+      </div>
     </div>
   );
 };

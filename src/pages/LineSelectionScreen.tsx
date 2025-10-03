@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useFood, LineSide } from '@/context/FoodContext'; // Re-added useFood and LineSide imports
+import { useFood, LineSide } from '@/context/FoodContext';
 
 const LineSelectionScreen = () => {
   const navigate = useNavigate();
-  const { setLineSide } = useFood(); // Re-added setLineSide usage
+  const { setLineSide } = useFood();
 
   const handleLineSelect = (side: LineSide) => {
     setLineSide(side);
@@ -35,7 +35,6 @@ const LineSelectionScreen = () => {
         </Button>
       </div>
       <div className="absolute bottom-4 text-center text-sm text-gray-600">
-        Made by{" "}
         <a
           href="https://abaleemmo.github.io"
           target="_blank"

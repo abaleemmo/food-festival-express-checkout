@@ -199,10 +199,11 @@ const AdminDashboard = () => {
       showError('Description cannot be empty.');
       return;
     }
-    if (!itemToValidate.origin?.trim()) {
-      showError('Country/Area of Origin cannot be empty.');
-      return;
-    }
+    // Removed the validation for origin field
+    // if (!itemToValidate.origin?.trim()) {
+    //   showError('Country/Area of Origin cannot be empty.');
+    //   return;
+    // }
 
     if (editingItem) {
       const { error } = await supabase.from('food_items').update({

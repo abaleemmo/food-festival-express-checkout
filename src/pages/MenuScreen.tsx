@@ -39,6 +39,7 @@ const MenuScreen = () => {
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [animationDirection, setAnimationDirection] = useState<'up' | 'down' | null>(null);
   const [showMenuTour, setShowMenuTour] = useState(false); // State for tour visibility
+  const [currentTourStepIndex, setCurrentTourStepIndex] = useState(0); // State for current tour step
 
   // Check local storage on mount to decide if tour should show
   useEffect(() => {
@@ -51,7 +52,28 @@ const MenuScreen = () => {
   const handleCloseMenuTour = useCallback(() => {
     setShowMenuTour(false);
     localStorage.setItem(HAS_SEEN_MENU_TOUR_KEY, 'true');
+    setCurrentTourStepIndex(0); // Reset tour step for next time
   }, []);
+
+  const handleNextTourStep = useCallback(() => {
+    setCurrentTourStepIndex((prev) => {
+      const nextStep = prev + 1;
+      // Assuming 9 steps in total based on MenuTourDialog's internal tourSteps array
+      if (nextStep >= 9) { 
+        handleCloseMenuTour();
+        return 0;
+      }
+      return nextStep;
+    });
+  }, [handleCloseMenuTour]);
+
+  const handlePreviousTourStep = useCallback(() => {
+    setCurrentTourStepIndex((prev) => Math.max(0, prev - 1));
+  }, []);
+
+  const handleSkipTour = useCallback(() => {
+    handleCloseMenuTour();
+  }, [handleCloseMenuTour]);
 
   const handleBack = () => {
     navigate(-1);
@@ -172,12 +194,14 @@ const MenuScreen = () => {
         <CardContent className="flex-grow flex flex-col justify-between p-3 space-y-2">
           <div className="flex items-center justify-between mt-auto pt-2">
             <Button
+              data-tour-id="info-button"
               onClick={() => handleInfoClick(item)}
               className="bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray font-semibold text-sm py-1.5 h-auto rounded-full px-3"
             >
               <Info className="h-4 w-4 mr-1" /> Info
             </Button>
             <Button
+              data-tour-id="add-to-cart-button"
               onClick={() => handleAddItem(item)}
               className="bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white font-semibold text-sm py-1.5 h-auto rounded-full px-3"
             >
@@ -210,6 +234,7 @@ const MenuScreen = () => {
 
         {/* Action Buttons */}
         <Button
+          data-tour-id="proceed-to-checkout-button"
           onClick={handleCheckout}
           className="w-full py-3 text-xl bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white font-semibold shadow-lg mb-2"
           disabled={cart.length === 0}
@@ -217,6 +242,7 @@ const MenuScreen = () => {
           Proceed to Checkout
         </Button>
         <Button
+          data-tour-id="clear-cart-button"
           variant="outline"
           onClick={clearCart}
           className="w-full py-3 text-lg border-festival-dark-red text-festival-dark-red hover:bg-festival-dark-red/10 font-semibold"
@@ -232,7 +258,7 @@ const MenuScreen = () => {
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-grow px-4 mb-4 min-h-0 h-0">
+          <ScrollArea className="flex-grow px-4 mb-4 min-h-0 h-0" data-tour-id="cart-actions">
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">
@@ -280,7 +306,14 @@ const MenuScreen = () => {
   return (
     <div className="min-h-screen flex flex-col bg-festival-cream text-festival-charcoal-gray">
       {/* Menu Tour Dialog */}
-      <MenuTourDialog isOpen={showMenuTour} onClose={handleCloseMenuTour} />
+      <MenuTourDialog
+        isOpen={showMenuTour}
+        currentStepIndex={currentTourStepIndex}
+        onClose={handleCloseMenuTour}
+        onNext={handleNextTourStep}
+        onPrevious={handlePreviousTourStep}
+        onSkip={handleSkipTour}
+      />
 
       {/* Header for Line Title */}
       <div className="p-4 flex justify-center flex-shrink-0">
@@ -291,6 +324,7 @@ const MenuScreen = () => {
 
       {/* Back Button - Fixed at bottom-left */}
       <Button
+        data-tour-id="back-button"
         onClick={handleBack}
         className="fixed bottom-4 left-4 bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white rounded-full p-4 shadow-lg flex items-center space-x-2 z-50"
       >
@@ -309,7 +343,7 @@ const MenuScreen = () => {
           ) : (
             <div className="flex items-center w-full max-w-md">
               {/* Navigation Arrows */}
-              <div className="flex flex-col space-y-6 mr-8 flex-shrink-0">
+              <div className="flex flex-col space-y-6 mr-8 flex-shrink-0" data-tour-id="page-navigation-arrows">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -356,7 +390,10 @@ const MenuScreen = () => {
         {isMobile ? (
           <Drawer>
             <DrawerTrigger asChild>
-              <Button className="fixed bottom-4 right-4 bg-festival-forest-green hover:bg-festival-forest-green/90 text-white rounded-full p-4 shadow-lg">
+              <Button
+                data-tour-id="mobile-cart-trigger"
+                className="fixed bottom-4 right-4 bg-festival-forest-green hover:bg-festival-forest-green/90 text-white rounded-full p-4 shadow-lg"
+              >
                 <ShoppingCart className="h-6 w-6" />
                 {cart.length > 0 && (
                   <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-festival-deep-orange text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">

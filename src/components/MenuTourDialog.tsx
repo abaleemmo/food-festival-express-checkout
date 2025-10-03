@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
 interface TourStep {
   title: string;
   description: React.ReactNode;
+  targetId?: string; // Optional ID for the element to highlight (for future use)
 }
 
 const tourSteps: TourStep[] = [
@@ -23,37 +24,40 @@ const tourSteps: TourStep[] = [
     description: (
       <>
         Each card represents a food item. You'll see its name and price.
-        Click the <span className="font-semibold text-festival-golden-yellow">"Info"</span> button to see more details like description, dietary tags, and origin.
+        Tap the <span className="font-semibold text-festival-golden-yellow">"Info"</span> button on each card to see more details like description, dietary tags, and origin.
       </>
     ),
+    targetId: "info-button",
   },
   {
     title: "Adding to Your Cart",
     description: (
       <>
-        Ready to order? Use the <span className="font-semibold text-festival-deep-orange">"Add"</span> button on each item card to add it to your cart.
+        Ready to order? Tap the <span className="font-semibold text-festival-deep-orange">"Add"</span> button on each item card to add it to your cart.
         You can add multiple quantities of the same item.
       </>
     ),
+    targetId: "add-to-cart-button",
   },
   {
     title: "Navigating Through Items",
     description: (
       <>
-        If there are many items, use the <span className="font-semibold text-festival-golden-yellow">Up</span> and{' '}
-        <span className="font-semibold text-festival-cream">Down</span> arrows on the left to browse through different pages of food items.
+        If there are many items, tap the <span className="font-semibold text-festival-golden-yellow">Up</span> and{' '}
+        <span className="font-semibold text-festival-cream">Down</span> arrows on the left side of the screen to browse through different pages of food items.
       </>
     ),
+    targetId: "page-navigation-arrows",
   },
   {
     title: "Your Shopping Cart",
     description: (
       <>
-        On desktop, your cart is on the right. On mobile, tap the{' '}
-        <span className="font-semibold text-festival-forest-green">shopping cart icon</span> at the bottom right to open it.
-        Here you can review your selections, adjust quantities, or remove items.
+        Your cart is accessible by tapping the{' '}
+        <span className="font-semibold text-festival-forest-green">shopping cart icon</span> at the bottom right of your screen. Tap it to open your cart and review your selections.
       </>
     ),
+    targetId: "mobile-cart-trigger",
   },
   {
     title: "Cart Actions",
@@ -65,25 +69,28 @@ const tourSteps: TourStep[] = [
         The <span className="font-semibold text-festival-dark-red">"Clear Cart"</span> button empties everything.
       </>
     ),
+    targetId: "cart-actions",
   },
   {
     title: "Proceed to Checkout",
     description: (
       <>
-        When you're done, click the{' '}
+        When you're done, tap the{' '}
         <span className="font-semibold text-festival-forest-green">"Proceed to Checkout"</span> button in your cart.
         You'll get an order summary to show the cashier.
       </>
     ),
+    targetId: "proceed-to-checkout-button",
   },
   {
     title: "Go Back",
     description: (
       <>
-        Need to change your line or dietary restrictions? Use the{' '}
-        <span className="font-semibold text-festival-forest-green">"Back"</span> button at the bottom left.
+        Need to change your line or dietary restrictions? Tap the{' '}
+        <span className="font-semibold text-festival-forest-green">"Back"</span> button at the bottom left of your screen.
       </>
     ),
+    targetId: "back-button",
   },
   {
     title: "Enjoy Your Meal!",
@@ -98,25 +105,24 @@ const tourSteps: TourStep[] = [
 
 interface MenuTourDialogProps {
   isOpen: boolean;
+  currentStepIndex: number;
   onClose: () => void;
+  onNext: () => void;
+  onPrevious: () => void;
+  onSkip: () => void;
 }
 
-const MenuTourDialog: React.FC<MenuTourDialogProps> = ({ isOpen, onClose }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-
-  const handleNext = () => {
-    if (currentStep < tourSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      onClose(); // End of tour
-    }
-  };
-
-  const handleSkip = () => {
-    onClose();
-  };
-
-  const currentTourStep = tourSteps[currentStep];
+const MenuTourDialog: React.FC<MenuTourDialogProps> = ({
+  isOpen,
+  currentStepIndex,
+  onClose,
+  onNext,
+  onPrevious,
+  onSkip,
+}) => {
+  const currentTourStep = tourSteps[currentStepIndex];
+  const isLastStep = currentStepIndex === tourSteps.length - 1;
+  const isFirstStep = currentStepIndex === 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -130,17 +136,26 @@ const MenuTourDialog: React.FC<MenuTourDialogProps> = ({ isOpen, onClose }) => {
         <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2 mt-4">
           <Button
             variant="outline"
-            onClick={handleSkip}
+            onClick={onSkip}
             className="border-festival-dark-red text-festival-dark-red hover:bg-festival-dark-red/10"
           >
-            {currentStep === tourSteps.length - 1 ? "Close" : "Skip Tour"}
+            {isLastStep ? "Close" : "Skip Tour"}
           </Button>
-          <Button
-            onClick={handleNext}
-            className="bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white"
-          >
-            {currentStep < tourSteps.length - 1 ? "Next" : "Got It!"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={onPrevious}
+              disabled={isFirstStep}
+              className="bg-festival-golden-yellow hover:bg-festival-golden-yellow/90 text-festival-charcoal-gray"
+            >
+              Previous
+            </Button>
+            <Button
+              onClick={onNext}
+              className="bg-festival-deep-orange hover:bg-festival-deep-orange/90 text-festival-white"
+            >
+              {isLastStep ? "Got It!" : "Next"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

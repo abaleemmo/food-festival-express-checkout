@@ -59,7 +59,7 @@ const CheckoutScreen = () => {
           <Separator className="my-4 bg-festival-golden-yellow flex-shrink-0" />
 
           {/* Scrollable Items List */}
-          <div className="space-y-3 flex-grow overflow-y-auto pr-2 min-h-0">
+          <div className="space-y-3 flex-grow overflow-y-auto pr-2 min-h-0 h-0"> {/* Added h-0 here */}
             {cart.length === 0 ? (
               <p className="text-center text-lg text-festival-charcoal-gray mt-4">No items in your order.</p>
             ) : (

@@ -216,7 +216,7 @@ const MenuScreen = () => {
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-grow px-4 mb-4 min-h-0"> {/* Removed max-h, added min-h-0 */}
+          <ScrollArea className="flex-grow px-4 mb-4 min-h-0 h-0"> {/* Added h-0 here */}
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">

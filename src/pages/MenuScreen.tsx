@@ -180,11 +180,43 @@ const MenuScreen = () => {
           <ShoppingCart className="h-7 w-7 mr-3" /> Your Cart
         </CardTitle>
       </CardHeader>
+      
+      <div className="flex-shrink-0 px-4 pt-4">
+        {/* Totals and Item Count */}
+        <div className="flex justify-between items-center text-2xl font-bold mb-2 text-festival-charcoal-gray">
+          <span>Total:</span>
+          <span>${cartTotal.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between items-center text-lg text-festival-charcoal-gray mb-4">
+          <span>Items:</span>
+          <span>{totalCartItems}</span>
+        </div>
+
+        {/* Action Buttons */}
+        <Button
+          onClick={handleCheckout}
+          className="w-full py-3 text-xl bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white font-semibold shadow-lg mb-2"
+          disabled={cart.length === 0}
+        >
+          Proceed to Checkout
+        </Button>
+        <Button
+          variant="outline"
+          onClick={clearCart}
+          className="w-full py-3 text-lg border-festival-dark-red text-festival-dark-red hover:bg-festival-dark-red/10 font-semibold"
+          disabled={cart.length === 0}
+        >
+          Clear Cart
+        </Button>
+        <Separator className="my-4 bg-festival-golden-yellow" />
+      </div>
+
+      {/* Scrollable Items List */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {cart.length === 0 ? (
           <p className="text-center text-lg text-festival-charcoal-gray mt-4 flex-grow">Your cart is empty.</p>
         ) : (
-          <ScrollArea className="flex-grow px-4 mb-4 max-h-[calc(100vh-20rem)]"> {/* Added max-h for scrollable area */}
+          <ScrollArea className="flex-grow px-4 mb-4 max-h-[calc(100vh-20rem)]">
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 border-festival-cream">
                 <div className="flex-1">
@@ -225,35 +257,6 @@ const MenuScreen = () => {
             ))}
           </ScrollArea>
         )}
-
-        <div className="flex-shrink-0 px-4 pt-4">
-          <Separator className="my-4 bg-festival-golden-yellow" />
-
-          <div className="flex justify-between items-center text-2xl font-bold mb-2 text-festival-charcoal-gray">
-            <span>Total:</span>
-            <span>${cartTotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between items-center text-lg text-festival-charcoal-gray mb-4">
-            <span>Items:</span>
-            <span>{totalCartItems}</span>
-          </div>
-
-          <Button
-            onClick={handleCheckout}
-            className="w-full py-3 text-xl bg-festival-forest-green hover:bg-festival-forest-green/90 text-festival-white font-semibold shadow-lg mb-2"
-            disabled={cart.length === 0}
-          >
-            Proceed to Checkout
-          </Button>
-          <Button
-            variant="outline"
-            onClick={clearCart}
-            className="w-full py-3 text-lg border-festival-dark-red text-festival-dark-red hover:bg-festival-dark-red/10 font-semibold"
-            disabled={cart.length === 0}
-          >
-            Clear Cart
-          </Button>
-        </div>
       </div>
     </div>
   );

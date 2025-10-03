@@ -21,21 +21,14 @@ const CheckoutScreen = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4 bg-festival-cream text-festival-charcoal-gray overflow-y-auto">
-      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 flex flex-col my-8 flex-grow"> {/* Removed overflow-y-auto from Card, added flex-grow */}
+      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 flex flex-col my-8 flex-grow">
         <CardHeader className="text-center flex-shrink-0">
           <CardTitle className="text-4xl font-bold mb-4 text-festival-dark-red">Thank You!</CardTitle>
         </CardHeader>
         <CardContent className="mt-6 flex flex-col flex-grow">
           <h2 className="text-2xl font-semibold mb-4 text-festival-deep-orange flex-shrink-0">Order Summary</h2>
-          <div className="space-y-3 mb-6 flex-grow overflow-y-auto pr-2"> {/* This div handles the scrolling for items */}
-            {cart.map((item) => (
-              <div key={item.id} className="flex justify-between items-center border-b pb-2 border-festival-cream">
-                <p className="text-lg text-festival-charcoal-gray">{item.name} (x{item.quantity})</p>
-                <p className="text-lg font-medium text-festival-forest-green">${(item.price * item.quantity).toFixed(2)}</p>
-              </div>
-            ))}
-          </div>
-          <Separator className="my-4 bg-festival-golden-yellow flex-shrink-0" />
+          
+          {/* Totals and Item Count */}
           <div className="flex justify-between items-center text-2xl font-bold mb-2 text-festival-charcoal-gray flex-shrink-0">
             <span>Total:</span>
             <span>${cartTotal.toFixed(2)}</span>
@@ -45,13 +38,15 @@ const CheckoutScreen = () => {
             <span>{totalItemCount}</span>
           </div>
 
+          {/* Cashier Message */}
           <div className="bg-festival-golden-yellow/20 border-l-4 border-festival-golden-yellow text-festival-charcoal-gray p-4 mb-6 rounded-md text-center flex-shrink-0">
             <p className="text-xl md:text-2xl font-bold text-festival-dark-red">
               Please show this screen to a cashier to complete your order.
             </p>
           </div>
 
-          <div className="flex flex-col space-y-4 flex-shrink-0">
+          {/* Go Home Button */}
+          <div className="flex flex-col space-y-4 flex-shrink-0 mb-6">
             <Button
               variant="outline"
               onClick={handleGoHome}
@@ -59,6 +54,22 @@ const CheckoutScreen = () => {
             >
               <Home className="h-5 w-5 mr-2" /> Go to Home
             </Button>
+          </div>
+
+          <Separator className="my-4 bg-festival-golden-yellow flex-shrink-0" />
+
+          {/* Scrollable Items List */}
+          <div className="space-y-3 flex-grow overflow-y-auto pr-2">
+            {cart.length === 0 ? (
+              <p className="text-center text-lg text-festival-charcoal-gray mt-4">No items in your order.</p>
+            ) : (
+              cart.map((item) => (
+                <div key={item.id} className="flex justify-between items-center border-b pb-2 border-festival-cream">
+                  <p className="text-lg text-festival-charcoal-gray">{item.name} (x{item.quantity})</p>
+                  <p className="text-lg font-medium text-festival-forest-green">${(item.price * item.quantity).toFixed(2)}</p>
+                </div>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

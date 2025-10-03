@@ -20,8 +20,8 @@ const CheckoutScreen = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4 bg-festival-cream text-festival-charcoal-gray"> {/* Removed overflow-y-auto from here */}
-      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 flex flex-col my-8 flex-grow max-h-[calc(100vh - 6rem)]"> {/* Added max-h to constrain card height */}
+    <div className="min-h-screen flex flex-col items-center p-4 bg-festival-cream text-festival-charcoal-gray">
+      <Card className="w-full max-w-2xl bg-festival-white shadow-lg rounded-lg p-6 flex flex-col my-8 flex-grow max-h-[calc(100vh - 6rem)]">
         <CardHeader className="text-center flex-shrink-0">
           <CardTitle className="text-4xl font-bold mb-4 text-festival-dark-red">Thank You!</CardTitle>
         </CardHeader>
@@ -59,7 +59,7 @@ const CheckoutScreen = () => {
           <Separator className="my-4 bg-festival-golden-yellow flex-shrink-0" />
 
           {/* Scrollable Items List */}
-          <div className="space-y-3 flex-grow overflow-y-auto pr-2">
+          <div className="space-y-3 flex-grow overflow-y-auto pr-2 min-h-0">
             {cart.length === 0 ? (
               <p className="text-center text-lg text-festival-charcoal-gray mt-4">No items in your order.</p>
             ) : (

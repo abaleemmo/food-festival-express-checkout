@@ -8,19 +8,20 @@ import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { useFood, FoodItem, CartItem, DietaryTag } from '@/context/FoodContext';
-import { ShoppingCart, Plus, Minus, ChevronLeft, Info, ChevronUp, ChevronDown, Trash2, RefreshCcw } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, ChevronLeft, Info, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
-import MenuTourDialog from '@/components/MenuTourDialog'; // Import the new tour component
+import MenuTourDialog from '@/components/MenuTourDialog';
+import { useSession } from '@/context/SessionContext'; // Import useSession
 
 const ITEMS_PER_PAGE = 3;
-// Removed HAS_SEEN_MENU_TOUR_KEY as it's no longer needed
 
 const MenuScreen = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { user } = useSession(); // Get the current user from session
   const {
     foodItems,
     lineSide,
@@ -38,24 +39,21 @@ const MenuScreen = () => {
   const [itemToAddAfterWarning, setItemToAddAfterWarning] = useState<FoodItem | null>(null);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [animationDirection, setAnimationDirection] = useState<'up' | 'down' | null>(null);
-  const [showMenuTour, setShowMenuTour] = useState(false); // State for tour visibility
-  const [currentTourStepIndex, setCurrentTourStepIndex] = useState(0); // State for current tour step
+  const [showMenuTour, setShowMenuTour] = useState(false);
+  const [currentTourStepIndex, setCurrentTourStepIndex] = useState(0);
 
-  // Always show the tour when the component mounts
   useEffect(() => {
     setShowMenuTour(true);
   }, []);
 
   const handleCloseMenuTour = useCallback(() => {
     setShowMenuTour(false);
-    // Removed localStorage.setItem(HAS_SEEN_MENU_TOUR_KEY, 'true');
-    setCurrentTourStepIndex(0); // Reset tour step for next time
+    setCurrentTourStepIndex(0);
   }, []);
 
   const handleNextTourStep = useCallback(() => {
     setCurrentTourStepIndex((prev) => {
       const nextStep = prev + 1;
-      // Updated to 8 steps after removing 'Enjoy Your Meal!'
       if (nextStep >= 8) { 
         handleCloseMenuTour();
         return 0;
@@ -89,13 +87,14 @@ const MenuScreen = () => {
     console.log("Cart contents for transaction:", JSON.stringify(cart, null, 2));
     console.log("Calculated Total Amount:", totalAmount);
     console.log("Calculated Item Count:", itemCount);
+    console.log("User ID for transaction:", user?.id || 'Anonymous'); // Log user ID
 
     const { data, error } = await supabase.from('transactions').insert({
       total_amount: totalAmount,
       item_count: itemCount,
-      items_purchased: cart, // Supabase should handle JSONB conversion
-      user_id: null, // Explicitly set to null for anonymous checkout
-    }).select(); // Use .select() to get the inserted data back, useful for debugging
+      items_purchased: cart,
+      user_id: user?.id || null, // Use logged-in user's ID or null for anonymous
+    }).select();
 
     if (error) {
       console.error('--- Transaction Recording FAILED ---');
@@ -330,7 +329,7 @@ const MenuScreen = () => {
       </Button>
 
       {/* Main content area (Menu + Cart) */}
-      <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0 pb-32 lg:pb-4"> {/* Increased pb to pb-32 for mobile spacing */}
+      <div className="flex-1 flex flex-col lg:flex-row p-4 pt-0 pb-32 lg:pb-4">
         {/* Menu Content (Arrows + Food Items) */}
         <div className="flex-1 p-4 relative flex justify-center">
           {displayFoodItems.length === 0 ? (

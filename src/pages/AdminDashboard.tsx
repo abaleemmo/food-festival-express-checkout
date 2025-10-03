@@ -292,11 +292,14 @@ const AdminDashboard = () => {
 
   const handleClearAllTransactions = async () => {
     if (window.confirm('Are you sure you want to delete ALL transaction data? This action cannot be undone.')) {
+      console.log("AdminDashboard: Attempting to clear all transactions...");
       const { error } = await supabase.from('transactions').delete().not('id', 'is', null); // Delete all rows
       if (error) {
         showError('Error clearing transactions: ' + error.message);
+        console.error('AdminDashboard: Error clearing transactions:', error);
       } else {
         showSuccess('All transaction data cleared successfully!');
+        console.log("AdminDashboard: Transactions cleared from DB. Resetting local states.");
         // Immediately reset counters for instant feedback
         setTotalItemsProcessed(0);
         setTotalRevenueProcessed(0);
@@ -307,6 +310,7 @@ const AdminDashboard = () => {
         setMostPopularItems([]);
         setLeastPopularItems([]);
         setTransactions([]); // Also clear the detailed transactions list
+        console.log("AdminDashboard: Local states reset. Re-fetching transactions to confirm.");
         // Then re-fetch to confirm (should be empty)
         fetchTransactions(); 
       }
@@ -335,7 +339,7 @@ const AdminDashboard = () => {
       csvContent += `${hour}:00,$${sales.toFixed(2)}\n`;
     });
 
-    csvContent += '\n\n--- Item-by-Item Sales Summary ---\n';
+    csvContent += '\n\n--- Item-by-item Sales Summary ---\n';
     csvContent += 'Item Name,Quantity Sold,Total Revenue\n';
     Object.entries(itemSales).forEach(([name, data]) => {
       csvContent += `${name},${data.quantity},$${data.revenue.toFixed(2)}\n`;
@@ -343,6 +347,7 @@ const AdminDashboard = () => {
 
     csvContent += '\n\n--- Overall Sales Summary ---\n';
     csvContent += `Average Transaction Value,$${averageTransactionValue.toFixed(2)}\n`;
+    csvContent += `Most Popular Items:\n`;
     mostPopularItems.forEach(item => {
       csvContent += `  - ${item.name} (${item.quantity} sold, $${item.revenue.toFixed(2)})\n`;
     });

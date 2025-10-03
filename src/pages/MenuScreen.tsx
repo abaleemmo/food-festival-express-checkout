@@ -16,7 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import MenuTourDialog from '@/components/MenuTourDialog'; // Import the new tour component
 
 const ITEMS_PER_PAGE = 3;
-// const HAS_SEEN_MENU_TOUR_KEY = 'hasSeenMenuTour'; // Removed key for local storage
+const HAS_SEEN_MENU_TOUR_KEY = 'hasSeenMenuTour'; // Key for local storage
 
 const MenuScreen = () => {
   const navigate = useNavigate();
@@ -41,22 +41,25 @@ const MenuScreen = () => {
   const [showMenuTour, setShowMenuTour] = useState(false); // State for tour visibility
   const [currentTourStepIndex, setCurrentTourStepIndex] = useState(0); // State for current tour step
 
-  // Always show the tour when the component mounts
+  // Check local storage on mount to decide if tour should show
   useEffect(() => {
-    setShowMenuTour(true);
+    const hasSeenTour = localStorage.getItem(HAS_SEEN_MENU_TOUR_KEY);
+    if (!hasSeenTour) {
+      setShowMenuTour(true);
+    }
   }, []);
 
   const handleCloseMenuTour = useCallback(() => {
     setShowMenuTour(false);
-    // localStorage.setItem(HAS_SEEN_MENU_TOUR_KEY, 'true'); // Removed localStorage set
+    localStorage.setItem(HAS_SEEN_MENU_TOUR_KEY, 'true');
     setCurrentTourStepIndex(0); // Reset tour step for next time
   }, []);
 
   const handleNextTourStep = useCallback(() => {
     setCurrentTourStepIndex((prev) => {
       const nextStep = prev + 1;
-      // Assuming 9 steps in total based on MenuTourDialog's internal tourSteps array
-      if (nextStep >= 9) { 
+      // Updated to 8 steps after removing 'Enjoy Your Meal!'
+      if (nextStep >= 8) { 
         handleCloseMenuTour();
         return 0;
       }

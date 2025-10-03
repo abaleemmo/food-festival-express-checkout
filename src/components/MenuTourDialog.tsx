@@ -43,8 +43,9 @@ const tourSteps: TourStep[] = [
     title: "Navigating Through Items",
     description: (
       <>
-        If there are many items, tap the <span className="font-semibold text-festival-golden-yellow">Up</span> and{' '}
-        <span className="font-semibold text-festival-cream">Down</span> arrows on the left side of the screen to browse through different pages of food items.
+        If there are many items, tap the large{' '}
+        <span className="font-semibold text-festival-golden-yellow">Up</span> and{' '}
+        <span className="font-semibold text-festival-cream">Down</span> arrow buttons on the left side of the screen to browse through different pages of food items.
       </>
     ),
     targetId: "page-navigation-arrows",
@@ -91,15 +92,6 @@ const tourSteps: TourStep[] = [
       </>
     ),
     targetId: "back-button",
-  },
-  {
-    title: "Enjoy Your Meal!",
-    description: (
-      <>
-        That's it for the tour! We hope you have a great experience with{' '}
-        <span className="font-semibold text-festival-deep-orange">Express Checkout</span>.
-      </>
-    ),
   },
 ];
 
